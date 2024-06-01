@@ -8,7 +8,7 @@ import uuid
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super secret key!!!"
 CORS(app, origins="*")
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 rooms = {}
 
@@ -32,14 +32,14 @@ def home():
 def create_room():
     if(request.method == "POST"):
         room_code = generate_unique_code(4)
-        rooms[room_code] = {"members": 0, "messages": []}
+        rooms[room_code] = {"members": {}, "messages": []}
         print("room created: " + room_code)
         response = jsonify({"status": "success", "message": "Room created", "data": {"roomCode": room_code}})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
 @app.route("/room/join", methods=["POST"])
-def join_room():
+def connect_to_room():
     if(request.method == "POST"):
         data = request.json
         room_code = data['roomCode']
@@ -49,10 +49,35 @@ def join_room():
             return jsonify({"status": "error", "message":"Room does not exist"})
         elif not user_name:
             return jsonify({"status": "error", "message":"Please enter a name"})
-        print( user_name + " joined room: "  + room_code)
         response = jsonify({"status": "success", "message": "Room joined", "data": {"userId": user_id, "roomCode": room_code}})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
+
+
+
+@socketio.on("connect")
+def connect(auth):
+    print("attempting to connect")
+    room = request.headers.get("Room-Code").upper()
+    user_id = request.headers.get("User-Id")
+    user_name = request.headers.get("User-Name")
+
+    print("name: " + user_name + " room: " + room + " id: " + user_id)
+    print(rooms)
+
+    if not room or not user_id or not user_name:
+        print("no room id or name")
+        return
+    
+    if room not in rooms:
+        print("room not in rooms")
+        leave_room(room)
+        return
+    
+    join_room(room)
+    rooms[room]["members"][user_id] = {"userId": user_id, "name": user_name}
+    socketio.send(f"{user_name} joined room {room}", room=room)
+    print(f"{user_name} joined room {room}")
 
 
 

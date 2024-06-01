@@ -1,7 +1,11 @@
 import { useState } from "react";
 import FlaskApiHelper from "../helpers/flaskApiHelper";
 
-export default function Home() {
+interface HomeProps {
+  handleJoinRoom: (code: string, userId: string, name: string) => void;
+}
+
+export default function Home(props: HomeProps) {
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
@@ -35,6 +39,9 @@ export default function Home() {
       return;
     }
     const joinRoomResponse = await FlaskApiHelper.joinRoom(name, roomCode.toUpperCase());
+    if (joinRoomResponse.status === "success") {
+      props.handleJoinRoom(roomCode, joinRoomResponse.data.userId, name);
+    }
     console.log(joinRoomResponse);
   };
 
@@ -47,7 +54,7 @@ export default function Home() {
       <p>Room Code:</p>
       <input value={roomCode} onChange={handleChangeRoomCode} />
       <button onClick={handleJoinRoom}>Join Room</button>
-
+      <br />
       <button onClick={handleCreateRoom}>Create Room</button>
     </>
   );
