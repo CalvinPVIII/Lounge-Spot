@@ -26,23 +26,26 @@ export default function Home(props: HomeProps) {
       return;
     }
     const createRoomResponse = await FlaskApiHelper.createRoom();
+    if (createRoomResponse.status === "success") {
+      setError("");
+      handleJoinRoom(createRoomResponse.data.roomCode);
+    }
     console.log(createRoomResponse);
-
-    setError("");
   };
 
-  const handleJoinRoom = async () => {
+  const handleJoinRoom = async (code?: string) => {
+    if (!code) code = roomCode;
     if (name === "") {
       setError("Please enter a name");
       return;
     }
-    if (roomCode === "") {
+    if (code === "") {
       setError("Please enter a room code");
       return;
     }
-    const joinRoomResponse = await FlaskApiHelper.joinRoom(name, roomCode.toUpperCase());
+    const joinRoomResponse = await FlaskApiHelper.joinRoom(name, code.toUpperCase());
     if (joinRoomResponse.status === "success") {
-      props.handleJoinRoom(roomCode, joinRoomResponse.data.userId, name);
+      props.handleJoinRoom(code, joinRoomResponse.data.userId, name);
     }
     console.log(joinRoomResponse);
   };
@@ -59,7 +62,7 @@ export default function Home(props: HomeProps) {
       <div id="home-main-buttons">
         <div id="home-create">
           <div>
-            <Button onClick={handleCreateRoom} variant="outlined" size="small">
+            <Button onClick={handleCreateRoom} variant="outlined" size="small" className="home-button">
               Create Room
             </Button>
           </div>
@@ -68,7 +71,7 @@ export default function Home(props: HomeProps) {
         <div id="home-join">
           <TextField label="room code" value={roomCode} onChange={handleChangeRoomCode} size="small" />
           <Box textAlign="center" marginTop={"15px"}>
-            <Button variant="outlined" onClick={handleJoinRoom} size="small">
+            <Button variant="outlined" onClick={() => handleJoinRoom()} size="small" className="home-button">
               Join Room
             </Button>
           </Box>

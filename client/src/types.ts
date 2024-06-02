@@ -12,6 +12,10 @@ export interface JoinRoomResponse extends APIResponse {
   data: { userId: string };
 }
 
+export interface CreateRoomResponse extends APIResponse {
+  data: { roomCode: string };
+}
+
 export interface UserInfo {
   name: string;
   id: string;

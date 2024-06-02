@@ -1,4 +1,4 @@
-import { JoinRoomResponse } from "../types";
+import { CreateRoomResponse, JoinRoomResponse } from "../types";
 
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
@@ -10,7 +10,7 @@ export default class FlaskApiHelper {
     });
 
     const result = await response.json();
-    return result;
+    return result as CreateRoomResponse;
   }
 
   static async joinRoom(userName: string, roomCode: string) {
