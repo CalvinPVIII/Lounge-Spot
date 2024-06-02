@@ -63,9 +63,6 @@ def connect(auth):
     user_id = request.headers.get("User-Id")
     user_name = request.headers.get("User-Name")
 
-    print("name: " + user_name + " room: " + room + " id: " + user_id)
-    print(rooms)
-
     if not room or not user_id or not user_name:
         print("no room id or name")
         return
@@ -78,8 +75,25 @@ def connect(auth):
     join_room(room)
     rooms[room]["members"][user_id] = {"userId": user_id, "name": user_name}
     rooms[room]["messages"].append({"user": {"id": "system"}, "message": f"{user_name} joined room {room}", "timestamp": time.time() })
-    socketio.emit("establishConnection", rooms[room])
+    socketio.emit("establishConnection", rooms[room], to=room)
     print(f"{user_name} joined room {room}")
+
+@socketio.on("disconnect")
+def disconnect():
+    room = request.headers.get("Room-Code").upper()
+    user_id = request.headers.get("User-Id")
+    user_name = request.headers.get("User-Name")
+
+    leave_room(room)
+    if room in rooms:
+        del rooms[room]['members'][user_id]
+        if len(rooms[room]['members']) <= 0:
+            del rooms[room]
+        else:
+            rooms[room]["messages"].append({"user": {"id": "system"}, "message": f"{user_name} left the room", "timestamp": time.time() })
+            socketio.emit("receiveMessage", rooms[room]["messages"],to=room)
+        print(rooms)
+
 
 @socketio.on("sendMessage")
 def receive_message(data):
@@ -92,7 +106,7 @@ def receive_message(data):
         return
     
     rooms[room]["messages"].append({"user": user, "message": message, "timestamp": time.time()})
-    socketio.emit("receiveMessage", rooms[room]["messages"])
+    socketio.emit("receiveMessage", rooms[room]["messages"],to=room)
 
 
 
