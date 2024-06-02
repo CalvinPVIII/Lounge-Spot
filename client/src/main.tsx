@@ -1,10 +1,33 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import "./index.css";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
+const theme = createTheme({
+  palette: {
+    mode: "dark",
+    primary: {
+      main: "#aa62f9",
+    },
+    secondary: {
+      main: "#ffffff",
+    },
+    background: {
+      default: "#0D0D12",
+    },
+  },
+  typography: {
+    fontFamily: "Montserrat",
+    h1: {
+      fontFamily: "Montserrat",
+    },
+  },
+});
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <>
-    <App />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </>
 );

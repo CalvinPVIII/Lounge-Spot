@@ -1,0 +1,41 @@
+#home-name-input {
+  margin-top: 150px;
+  margin-bottom: 100px;
+  text-align: center;
+}
+
+#home-main-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  max-width: 300px;
+  margin: auto;
+}
+
+#home-join {
+  width: 50%;
+}
+
+#room-code-input {
+  margin-bottom: 20px;
+}
+
+#home-create {
+  display: flex;
+  justify-content: center;
+  width: 50%;
+  margin-top: 40px;
+}
+
+#home-spacer {
+  border-left: 1px solid #484848;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+#home-header {
+  text-align: center;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 300;
+  font-size: 45px;
+}

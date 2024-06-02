@@ -22,6 +22,7 @@ export interface UserInfo {
 export interface ChatMessage {
   message: string;
   user: UserInfo;
+  timestamp: string;
 }
 
 export interface RoomState {

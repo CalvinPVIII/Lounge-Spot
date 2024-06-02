@@ -4,6 +4,7 @@ from flask_cors import CORS
 import random
 from string import ascii_uppercase
 import uuid
+import time
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super secret key!!!"
@@ -76,7 +77,7 @@ def connect(auth):
     
     join_room(room)
     rooms[room]["members"][user_id] = {"userId": user_id, "name": user_name}
-    rooms[room]["messages"].append({"user": {"id": "system"}, "message": f"{user_name} joined room {room}"})
+    rooms[room]["messages"].append({"user": {"id": "system"}, "message": f"{user_name} joined room {room}", "timestamp": time.time() })
     socketio.emit("establishConnection", rooms[room])
     print(f"{user_name} joined room {room}")
 
@@ -90,7 +91,7 @@ def receive_message(data):
     if not message or not user or not room:
         return
     
-    rooms[room]["messages"].append({"user": user, "message": message })
+    rooms[room]["messages"].append({"user": user, "message": message, "timestamp": time.time()})
     socketio.emit("receiveMessage", rooms[room]["messages"])
 
 

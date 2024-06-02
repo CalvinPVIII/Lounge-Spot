@@ -1,5 +1,7 @@
 import { useState } from "react";
 import FlaskApiHelper from "../helpers/flaskApiHelper";
+import "../styles/Home.css";
+import { Box, Button, TextField } from "@mui/material";
 
 interface HomeProps {
   handleJoinRoom: (code: string, userId: string, name: string) => void;
@@ -47,15 +49,32 @@ export default function Home(props: HomeProps) {
 
   return (
     <>
+      <h1 id="home-header">Lounge Spot</h1>
       {error ? <p className="error"> {error}</p> : null}
-      <p>Name:</p>
-      <input value={name} onChange={handleChangeName} />
-
-      <p>Room Code:</p>
-      <input value={roomCode} onChange={handleChangeRoomCode} />
-      <button onClick={handleJoinRoom}>Join Room</button>
-      <br />
-      <button onClick={handleCreateRoom}>Create Room</button>
+      <div id="home-name-input">
+        <div>
+          <TextField label="name" value={name} onChange={handleChangeName} />
+        </div>
+      </div>
+      <div id="home-main-buttons">
+        <div id="home-create">
+          <div>
+            <Button onClick={handleCreateRoom} variant="outlined" size="small">
+              Create Room
+            </Button>
+          </div>
+        </div>
+        <div id="home-spacer"></div>
+        <div id="home-join">
+          <TextField label="room code" value={roomCode} onChange={handleChangeRoomCode} size="small" />
+          <Box textAlign="center" marginTop={"15px"}>
+            <Button variant="outlined" onClick={handleJoinRoom} size="small">
+              Join Room
+            </Button>
+          </Box>
+        </div>
+        <br />
+      </div>
     </>
   );
 }
