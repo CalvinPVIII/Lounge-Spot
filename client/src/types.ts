@@ -11,3 +11,20 @@ export interface JoinRoomBody {
 export interface JoinRoomResponse extends APIResponse {
   data: { userId: string };
 }
+
+export interface UserInfo {
+  name: string;
+  id: string;
+  color: string;
+  avatar: string;
+}
+
+export interface ChatMessage {
+  message: string;
+  user: UserInfo;
+}
+
+export interface RoomState {
+  members: { [id: string]: UserInfo };
+  messages: ChatMessage[];
+}

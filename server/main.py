@@ -76,8 +76,23 @@ def connect(auth):
     
     join_room(room)
     rooms[room]["members"][user_id] = {"userId": user_id, "name": user_name}
-    socketio.send(f"{user_name} joined room {room}", room=room)
+    rooms[room]["messages"].append({"user": {"id": "system"}, "message": f"{user_name} joined room {room}"})
+    socketio.emit("establishConnection", rooms[room])
     print(f"{user_name} joined room {room}")
+
+@socketio.on("sendMessage")
+def receive_message(data):
+    print(data)
+    room = request.headers.get("Room-Code").upper()
+    user = data['user']
+    message = data['message']
+    
+    if not message or not user or not room:
+        return
+    
+    rooms[room]["messages"].append({"user": user, "message": message })
+    socketio.emit("receiveMessage", rooms[room]["messages"])
+
 
 
 
