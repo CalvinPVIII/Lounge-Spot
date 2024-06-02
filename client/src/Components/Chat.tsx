@@ -1,6 +1,7 @@
 import React from "react";
 import { ChatMessage } from "../types";
 import { useState } from "react";
+import "../styles/Chat.css";
 interface ChatProps {
   messages: ChatMessage[];
   handleSendMessage: (message: string) => void;

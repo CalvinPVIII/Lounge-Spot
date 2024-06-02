@@ -62,7 +62,7 @@ export default function Home(props: HomeProps) {
       <div id="home-main-buttons">
         <div id="home-create">
           <div>
-            <Button onClick={handleCreateRoom} variant="outlined" size="small" className="home-button">
+            <Button onClick={handleCreateRoom} variant="outlined" size="small" className="home-button" sx={{ borderRadius: 28 }}>
               Create Room
             </Button>
           </div>
@@ -71,7 +71,7 @@ export default function Home(props: HomeProps) {
         <div id="home-join">
           <TextField label="room code" value={roomCode} onChange={handleChangeRoomCode} size="small" />
           <Box textAlign="center" marginTop={"15px"}>
-            <Button variant="outlined" onClick={() => handleJoinRoom()} size="small" className="home-button">
+            <Button variant="outlined" onClick={() => handleJoinRoom()} size="small" className="home-button" sx={{ borderRadius: 28 }}>
               Join Room
             </Button>
           </Box>

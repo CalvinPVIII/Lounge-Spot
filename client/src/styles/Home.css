@@ -10,10 +10,12 @@
   justify-content: center;
   max-width: 300px;
   margin: auto;
+  gap: 10px;
 }
 
 #home-join {
   width: 50%;
+  margin-top: 20px;
 }
 
 #room-code-input {
@@ -24,7 +26,7 @@
   display: flex;
   justify-content: center;
   width: 50%;
-  margin-top: 40px;
+  margin-top: 75px;
 }
 
 #home-spacer {
