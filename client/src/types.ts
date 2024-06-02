@@ -32,4 +32,15 @@ export interface ChatMessage {
 export interface RoomState {
   members: { [id: string]: UserInfo };
   messages: ChatMessage[];
+  videoInfo: VideoPlayerState;
+}
+
+export interface VideoPlayerState {
+  url: string;
+  playing: boolean;
+  currentTime: number;
+  maxTime: number;
+  startTimeStamp: number;
+  pauseTimeStamp: number;
+  playPauseOffset: number;
 }

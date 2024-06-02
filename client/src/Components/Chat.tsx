@@ -9,7 +9,6 @@ interface ChatProps {
 
 export default function Chat(props: ChatProps) {
   const [chatInput, setChatInput] = useState("");
-  console.log(props);
 
   const handleSendChat = () => {
     props.handleSendMessage(chatInput);

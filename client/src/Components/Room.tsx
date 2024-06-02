@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { ChatMessage, RoomState, UserInfo } from "../types";
+import { ChatMessage, RoomState, UserInfo, VideoPlayerState } from "../types";
 import Chat from "./Chat";
+import VideoPlayer from "./VideoPlayer";
 
 interface RoomProps {
   roomCode: string;
@@ -14,10 +15,26 @@ export default function Room(props: RoomProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [members, setMembers] = useState<{ [id: string]: UserInfo }>({});
   const [activeSocket, setActiveSocket] = useState<Socket | null>(null);
+  const [videoState, setVideoState] = useState<VideoPlayerState>({
+    url: "",
+    currentTime: 0,
+    playing: false,
+    maxTime: 0,
+    startTimeStamp: 0,
+    pauseTimeStamp: 0,
+    playPauseOffset: 0,
+  });
 
   const sendMessage = (message: string) => {
     const user: UserInfo = { name: props.name, id: props.userId, color: "", avatar: "" };
     activeSocket?.emit("sendMessage", { user, message });
+  };
+
+  const playVideo = () => {
+    activeSocket?.emit("startVideo");
+  };
+  const pauseVideo = () => {
+    activeSocket?.emit("stopVideo");
   };
 
   useEffect(() => {
@@ -42,9 +59,13 @@ export default function Room(props: RoomProps) {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("establishConnection", (data: RoomState) => {
-      console.log(data);
       setMessages(data.messages);
       setMembers(data.members);
+      setVideoState(data.videoInfo);
+    });
+
+    socket.on("updateVideoInfo", (data: VideoPlayerState) => {
+      setVideoState(data);
     });
 
     socket.on("receiveMessage", (data: ChatMessage[]) => {
@@ -61,6 +82,7 @@ export default function Room(props: RoomProps) {
     return (
       <>
         <h1>ROOM: {props.roomCode}</h1>
+        <VideoPlayer handlePauseVideo={pauseVideo} handlePlayVideo={playVideo} videoState={videoState} />
         <Chat messages={messages} handleSendMessage={sendMessage} />
       </>
     );
