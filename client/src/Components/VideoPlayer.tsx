@@ -43,6 +43,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     <>
       <div id="player-wrapper">
         <ReactPlayer
+          className="react-player"
           ref={player}
           url={props.videoState.url}
           playing={props.videoState.playing}
@@ -52,6 +53,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           onStart={syncPlayer}
           onEnded={props.onVideoEnd}
           width="100%"
+          height="100%"
           config={{
             youtube: {
               playerVars: { showinfo: 0 },
