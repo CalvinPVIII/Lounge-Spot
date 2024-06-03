@@ -2,6 +2,7 @@ import { Button } from "@mui/material";
 import { VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
+import "../styles/VideoPlayer.css";
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
   handlePauseVideo: () => void;
@@ -40,21 +41,24 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <>
-      <ReactPlayer
-        ref={player}
-        url={props.videoState.url}
-        playing={props.videoState.playing}
-        allow="encrypted-media"
-        onPlay={props.handlePlayVideo}
-        onPause={props.handlePauseVideo}
-        onStart={syncPlayer}
-        onEnded={props.onVideoEnd}
-        config={{
-          youtube: {
-            playerVars: { showinfo: 0 },
-          },
-        }}
-      />
+      <div id="player-wrapper">
+        <ReactPlayer
+          ref={player}
+          url={props.videoState.url}
+          playing={props.videoState.playing}
+          allow="encrypted-media"
+          onPlay={props.handlePlayVideo}
+          onPause={props.handlePauseVideo}
+          onStart={syncPlayer}
+          onEnded={props.onVideoEnd}
+          width="100%"
+          config={{
+            youtube: {
+              playerVars: { showinfo: 0 },
+            },
+          }}
+        />
+      </div>
 
       <h1>Playing: {props.videoState.playing}</h1>
       <input type="text" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} />

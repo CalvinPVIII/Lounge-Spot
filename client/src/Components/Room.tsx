@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { ChatMessage, RoomState, UserInfo, VideoPlayerState } from "../types";
 import Chat from "./Chat";
 import VideoPlayer from "./VideoPlayer";
+import "../styles/Room.css";
 
 interface RoomProps {
   roomCode: string;
@@ -94,14 +95,20 @@ export default function Room(props: RoomProps) {
     return (
       <>
         <h1>ROOM: {props.roomCode}</h1>
-        <VideoPlayer
-          handlePauseVideo={pauseVideo}
-          handlePlayVideo={playVideo}
-          videoState={videoState}
-          addToQueue={addToQueue}
-          onVideoEnd={handleVideoEnd}
-        />
-        <Chat messages={messages} handleSendMessage={sendMessage} />
+        <div id="room-wrapper">
+          <div id="video-player-wrapper">
+            <VideoPlayer
+              handlePauseVideo={pauseVideo}
+              handlePlayVideo={playVideo}
+              videoState={videoState}
+              addToQueue={addToQueue}
+              onVideoEnd={handleVideoEnd}
+            />
+          </div>
+          <div id="chat-wrapper">
+            <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />
+          </div>
+        </div>
       </>
     );
 }

@@ -1,34 +1,80 @@
-import React from "react";
+import React, { FormEvent, RefObject, useEffect } from "react";
 import { ChatMessage } from "../types";
-import { useState } from "react";
+import { useState, useLayoutEffect, useRef } from "react";
+import useStayScrolled from "react-stay-scrolled";
 import "../styles/Chat.css";
+import { Button } from "@mui/material";
 interface ChatProps {
   messages: ChatMessage[];
   handleSendMessage: (message: string) => void;
+  roomCode: string;
 }
 
 export default function Chat(props: ChatProps) {
   const [chatInput, setChatInput] = useState("");
+  const messagesRef: RefObject<HTMLDivElement> = useRef(null);
+  const { stayScrolled, scrollBottom } = useStayScrolled(messagesRef);
 
+  useLayoutEffect(() => {
+    stayScrolled();
+  }, [props.messages.length]);
   const handleSendChat = () => {
     props.handleSendMessage(chatInput);
   };
+
+  useEffect(() => {
+    scrollBottom();
+  }, []);
+
+  const formatDate = (timestamp: string) => {
+    const mili = parseInt(timestamp) * 1000;
+    const date = new Date(mili);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+    const amPm = hours >= 12 ? "PM" : "AM";
+    const timeString = formattedHours + ":" + formattedMinutes + " " + amPm;
+    return timeString;
+  };
+
+  const handleChatSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (chatInput.trim() !== "") {
+      handleSendChat();
+      setChatInput("");
+    }
+  };
+
   return (
     <>
-      <h1>chat</h1>
-      <input type="text" onChange={(e) => setChatInput(e.target.value)} />
-      <button onClick={handleSendChat}>Send</button>
-      {props.messages.map((message, index) => (
-        <React.Fragment key={index}>
-          {message.user.id === "system" ? (
-            <p>{message.message}</p>
-          ) : (
-            <h4>
-              {message.user.name}: {message.message}
-            </h4>
-          )}
-        </React.Fragment>
-      ))}
+      <div id="chat-container">
+        <div id="chat-header">
+          <p>In Room: {props.roomCode}</p>
+        </div>
+        <div id="messages-container" ref={messagesRef}>
+          {props.messages.map((message, index) => (
+            <React.Fragment key={index}>
+              {message.user.id === "system" ? (
+                <p className="system-message">{message.message}</p>
+              ) : (
+                <div className={index % 2 === 0 ? "user-message even-message" : "user-message odd-message"}>
+                  <p className="message-info">
+                    {message.user.name} <span className="message-timestamp">{formatDate(message.timestamp)}</span>
+                  </p>
+                  <p className="message-content">{message.message}</p>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        <form onSubmit={handleChatSubmit}>
+          <div id="chat-input-container">
+            <input type="text" onChange={(e) => setChatInput(e.target.value)} id="chat-input" value={chatInput} />
+            <Button type="submit">Send</Button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }

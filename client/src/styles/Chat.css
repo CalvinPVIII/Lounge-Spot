@@ -1,0 +1,44 @@
+.system-message {
+  font-size: small;
+  opacity: 0.4;
+}
+
+.message-timestamp {
+  opacity: 0.4;
+  font-size: small;
+}
+
+.message-content {
+  margin-top: -14px;
+  overflow-wrap: break-word;
+}
+
+.even-message {
+  background-color: #0f0e1e;
+}
+
+#chat-container {
+  width: 400px;
+  border-radius: 4px;
+}
+
+#messages-container {
+  padding-left: 10px;
+  height: 80vh;
+  overflow-y: scroll;
+}
+
+#chat-input-container {
+  background-color: #1c1b21;
+  display: flex;
+}
+
+#chat-input {
+  flex-grow: 1;
+}
+
+#chat-header {
+  padding-left: 10px;
+  text-align: center;
+  border-bottom: 1px solid #484848;
+}
