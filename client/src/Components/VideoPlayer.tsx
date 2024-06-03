@@ -15,7 +15,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     setTimeout(() => {
       if (!player) return;
       syncPlayer();
-    }, 300);
+    }, 1000);
   }, []);
 
   const seek = () => {
@@ -23,10 +23,15 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   };
 
   const syncPlayer = () => {
-    console.log("SYNC");
-    const currentTime = (Date.now() + 300) / 1000;
-    const videoPlayingLength = currentTime - props.videoState.startTimeStamp;
-    player.current?.seekTo(videoPlayingLength, "seconds");
+    if (props.videoState.startTimeStamp === 0) return;
+
+    if (props.videoState.playPauseOffset !== 0 && props.videoState.playing === false) {
+      player.current?.seekTo(props.videoState.playPauseOffset + 1);
+    } else {
+      const currentTime = (Date.now() + 1000) / 1000 + props.videoState.playPauseOffset;
+      const videoPlayingLength = currentTime - props.videoState.startTimeStamp;
+      player.current?.seekTo(videoPlayingLength, "seconds");
+    }
   };
 
   return (

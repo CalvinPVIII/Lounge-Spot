@@ -134,6 +134,7 @@ def stop_video():
         return
     rooms[room]['videoInfo']['playing'] = False
     rooms[room]['videoInfo']['pauseTimeStamp'] = time.time()
+    # this keeps track of how long the video was playing before it was paused, it does account for multiple pauses
     rooms[room]['videoInfo']['playPauseOffset'] += rooms[room]['videoInfo']['pauseTimeStamp'] - rooms[room]['videoInfo']['startTimeStamp']
     socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
     print(rooms[room]['videoInfo'])
