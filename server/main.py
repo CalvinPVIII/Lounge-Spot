@@ -33,7 +33,7 @@ def home():
 def create_room():
     if(request.method == "POST"):
         room_code = generate_unique_code(4)
-        rooms[room_code] = {"members": {}, "messages": [], "videoInfo": {"url": "", "playing": False, "currentTime":0, "maxTime":0, "startTimeStamp": 0, "pauseTimeStamp": 0, "playPauseOffset": 0}}
+        rooms[room_code] = {"members": {}, "messages": [], "videoInfo": {"url": "","queue": [], "playing": False, "currentVideoId": "", "currentTime":0, "maxTime":0, "startTimeStamp": 0, "pauseTimeStamp": 0, "playPauseOffset": 0}}
         print("room created: " + room_code)
         response = jsonify({"status": "success", "message": "Room created", "data": {"roomCode": room_code}})
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -140,8 +140,61 @@ def stop_video():
     print(rooms[room]['videoInfo'])
 
 
+@socketio.on("addToQueue")
+def add_to_queue(data):
+    room = request.headers.get("Room-Code").upper()
+    user_id = request.headers.get("User-Id") 
+    url = data['url']
+    if not room in rooms or not room or not user_id or not url:
+        return 
     
-   
+    room_video_info = rooms[room]['videoInfo']
+    room_video_info['queue'].append(url)
+    if(room_video_info['url'] == ""):
+        room_video_info['url'] = url
+        room_video_info['currentVideoId'] = str(uuid.uuid4())
+        room_video_info['playing'] = True
+        room_video_info['pauseTimeStamp'] = 0
+        room_video_info['startTimeStamp'] = time.time()
+        room_video_info['playPauseOffset'] = 0
+        socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
+    print(room_video_info['queue'])
+
+
+
+@socketio.on("endVideo")
+def end_video(data):
+    room = request.headers.get("Room-Code").upper()
+    user_id = request.headers.get("User-Id") 
+    video_id = data['videoId']
+    if not room in rooms or not room or not user_id or not video_id:
+        return 
+    
+    room_video_info = rooms[room]['videoInfo']
+    if room_video_info['currentVideoId'] != video_id:
+        return
+    
+    if(len(room_video_info['queue']) == 1):
+        room_video_info['url'] = ""
+        room_video_info['queue'].pop(0)
+        room_video_info['currentVideoId'] = ""
+        room_video_info['playing'] = False
+        room_video_info['pauseTimeStamp'] = 0
+        room_video_info['startTimeStamp'] = 0;
+        room_video_info['playPauseOffset'] = 0
+    else:
+        room_video_info['url'] = room_video_info['queue'][0]
+        room_video_info['currentVideoId'] = str(uuid.uuid4())
+        room_video_info['queue'].pop(0)
+        room_video_info['playing'] = True
+        room_video_info['pauseTimeStamp'] = 0
+        room_video_info['startTimeStamp'] = time.time();
+        room_video_info['playPauseOffset'] = 0
+        socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
+    print(room_video_info)
+
+    
+
 
 
 

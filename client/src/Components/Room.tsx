@@ -23,6 +23,8 @@ export default function Room(props: RoomProps) {
     startTimeStamp: 0,
     pauseTimeStamp: 0,
     playPauseOffset: 0,
+    queue: [],
+    currentVideoId: "",
   });
 
   const sendMessage = (message: string) => {
@@ -35,6 +37,15 @@ export default function Room(props: RoomProps) {
   };
   const pauseVideo = () => {
     activeSocket?.emit("stopVideo");
+  };
+
+  const addToQueue = (url: string) => {
+    const user: UserInfo = { name: props.name, id: props.userId, color: "", avatar: "" };
+    activeSocket?.emit("addToQueue", { user, url });
+  };
+
+  const handleVideoEnd = () => {
+    activeSocket?.emit("endVideo", { videoId: videoState.currentVideoId });
   };
 
   useEffect(() => {
@@ -83,7 +94,13 @@ export default function Room(props: RoomProps) {
     return (
       <>
         <h1>ROOM: {props.roomCode}</h1>
-        <VideoPlayer handlePauseVideo={pauseVideo} handlePlayVideo={playVideo} videoState={videoState} />
+        <VideoPlayer
+          handlePauseVideo={pauseVideo}
+          handlePlayVideo={playVideo}
+          videoState={videoState}
+          addToQueue={addToQueue}
+          onVideoEnd={handleVideoEnd}
+        />
         <Chat messages={messages} handleSendMessage={sendMessage} />
       </>
     );

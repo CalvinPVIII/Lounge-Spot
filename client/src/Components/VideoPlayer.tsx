@@ -1,26 +1,25 @@
 import { Button } from "@mui/material";
 import { VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
   handlePauseVideo: () => void;
   videoState: VideoPlayerState;
+  addToQueue: (url: string) => void;
+  onVideoEnd: () => void;
 }
 
 export default function VideoPlayer(props: VideoPlayerProps) {
   const player = useRef<ReactPlayer>(null);
+  const [urlInput, setUrlInput] = useState("");
 
   useEffect(() => {
     setTimeout(() => {
       if (!player) return;
       syncPlayer();
     }, 1000);
-  }, []);
-
-  const seek = () => {
-    player.current?.seekTo(100);
-  };
+  }, [props.videoState]);
 
   const syncPlayer = () => {
     if (props.videoState.startTimeStamp === 0) return;
@@ -34,16 +33,22 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     }
   };
 
+  const handleRequestVideo = () => {
+    if (urlInput === "") return;
+    props.addToQueue(urlInput);
+  };
+
   return (
     <>
       <ReactPlayer
         ref={player}
-        url={"https://www.youtube.com/watch?v=rqxAn0vBeJ4"}
+        url={props.videoState.url}
         playing={props.videoState.playing}
         allow="encrypted-media"
         onPlay={props.handlePlayVideo}
         onPause={props.handlePauseVideo}
         onStart={syncPlayer}
+        onEnded={props.onVideoEnd}
         config={{
           youtube: {
             playerVars: { showinfo: 0 },
@@ -52,7 +57,8 @@ export default function VideoPlayer(props: VideoPlayerProps) {
       />
 
       <h1>Playing: {props.videoState.playing}</h1>
-      <Button onClick={seek}>seek</Button>
+      <input type="text" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} />
+      <Button onClick={handleRequestVideo}>Add Video</Button>
 
       <Button onClick={props.handlePlayVideo}>Play</Button>
       <Button onClick={props.handlePauseVideo}>Pause</Button>
