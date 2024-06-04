@@ -94,11 +94,6 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           <Slider aria-label="Volume" value={playerVolume} onChange={handleVolumeChange} min={0} max={100} />
           <VolumeUp />
         </div>
-        <div id="add-to-queue-button">
-          <Button variant="outlined" color="secondary" size="small">
-            request video
-          </Button>
-        </div>
       </div>
 
       <VideoSearch handleRequestVideo={handleRequestVideo} />
