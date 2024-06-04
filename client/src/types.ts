@@ -46,3 +46,55 @@ export interface VideoPlayerState {
   queue: [];
   currentVideoId: string;
 }
+
+type Thumbnail = {
+  height: number;
+  url: string;
+  width: number;
+};
+
+type DescriptionSnippet = {
+  text: string;
+};
+
+type Accessibility = {
+  duration: string;
+  title: string;
+};
+
+type Channel = {
+  id: string;
+  link: string;
+  name: string;
+  thumbnails: Thumbnail[];
+};
+
+type RichThumbnail = {
+  height: number;
+  url: string;
+  width: number;
+};
+
+type ViewCount = {
+  short: string;
+  text: string;
+};
+
+export interface VideoInfo {
+  accessibility: Accessibility;
+  channel: Channel;
+  descriptionSnippet: DescriptionSnippet[];
+  duration: string;
+  id: string;
+  link: string;
+  publishedTime: string;
+  richThumbnail: RichThumbnail;
+  thumbnails: Thumbnail[];
+  title: string;
+  type: string;
+  viewCount: ViewCount;
+}
+
+export interface SearchApiResponse extends APIResponse {
+  data: VideoInfo[];
+}

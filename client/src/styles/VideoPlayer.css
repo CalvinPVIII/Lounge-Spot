@@ -1,10 +1,29 @@
 #player-wrapper {
   position: relative;
   height: 70vh;
+  background-color: black;
 }
 
 .react-player {
   /* position: absolute;
   top: 0;
   left: 0; */
+}
+
+#player-controls-wrapper {
+  display: flex;
+  background-color: #252525;
+  gap: 30px;
+}
+
+#volume-controls {
+  display: flex;
+  width: 200px;
+  align-items: center;
+  gap: 10px;
+}
+
+#add-to-queue-button {
+  display: flex;
+  align-items: center;
 }

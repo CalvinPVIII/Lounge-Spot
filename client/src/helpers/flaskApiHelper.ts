@@ -1,4 +1,4 @@
-import { CreateRoomResponse, JoinRoomResponse } from "../types";
+import { CreateRoomResponse, JoinRoomResponse, SearchApiResponse } from "../types";
 
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
@@ -22,5 +22,11 @@ export default class FlaskApiHelper {
 
     const result = await response.json();
     return result as JoinRoomResponse;
+  }
+
+  static async searchVideo(param: string) {
+    const response = await fetch(`${serverUrl}/search?q=${param}`);
+    const result = await response.json();
+    return result as SearchApiResponse;
   }
 }

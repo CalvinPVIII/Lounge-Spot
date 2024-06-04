@@ -5,6 +5,7 @@ import random
 from string import ascii_uppercase
 import uuid
 import time
+from youtubesearchpython import VideosSearch
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super secret key!!!"
@@ -27,6 +28,18 @@ def generate_unique_code(length):
 @app.route("/")
 def home():
     return jsonify({"message": "hello world"})
+
+
+@app.route("/search")
+def search():
+    query = request.args.get('q')
+    if not query:
+        return jsonify({"status": "error", "message":"Query cannot be blank"})
+    else:
+        search = VideosSearch(query)
+        results = search.result()
+        return jsonify({"status": "success", "message":"Results", "data": results['result']})
+
 
 
 @app.route("/room/create", methods=["POST"])

@@ -12,12 +12,15 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.19",
     "@mui/material": "^5.15.19",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-player": "^2.16.0",
     "react-stay-scrolled": "^9.0.0",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "youtube-search-without-api-key": "^2.0.1",
+    "yt-search": "^2.11.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
