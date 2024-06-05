@@ -93,6 +93,7 @@ export interface VideoInfo {
   title: string;
   type: string;
   viewCount: ViewCount;
+  skipVotes: string[];
 }
 
 export interface SearchApiResponse extends APIResponse {

@@ -198,15 +198,15 @@ def end_video(data):
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes']= []
     else:
+        room_video_info['queue'].pop(0)
         room_video_info['url'] = room_video_info['queue'][0]
         room_video_info['currentVideoId'] = str(uuid.uuid4())
-        room_video_info['queue'].pop(0)
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
         room_video_info['startTimeStamp'] = time.time()
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes']= []
-        socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
+    socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
     print(room_video_info)
 
 @socketio.on("voteSkip")
@@ -218,9 +218,13 @@ def vote_skip():
         return 
     
     room_video_info = rooms[room]['videoInfo']
-    room_video_info['skipVotes'].append(user_id)
-    if len(room_video_info['skipVotes']) >= len(rooms[room]['members']):
+    if user_id in room_video_info['skipVotes']:
         return
+    room_video_info['skipVotes'].append(user_id)
+    if len(room_video_info['skipVotes']) >= len(rooms[room]['members'])/2:
+        handle_move_to_next_video(room_video_info)
+        socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
+
 
 
 
@@ -235,9 +239,9 @@ def handle_move_to_next_video(room_video_info):
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes']= []
     else:
+        room_video_info['queue'].pop(0)
         room_video_info['url'] = room_video_info['queue'][0]
         room_video_info['currentVideoId'] = str(uuid.uuid4())
-        room_video_info['queue'].pop(0)
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
         room_video_info['startTimeStamp'] = time.time()

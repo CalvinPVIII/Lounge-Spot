@@ -49,6 +49,10 @@ export default function Room(props: RoomProps) {
     activeSocket?.emit("endVideo", { videoId: videoState.currentVideoId });
   };
 
+  const handleVoteSkip = () => {
+    activeSocket?.emit("voteSkip");
+  };
+
   useEffect(() => {
     const url = import.meta.env.VITE_SERVER_URL;
     const socket = io(url, {
@@ -103,6 +107,7 @@ export default function Room(props: RoomProps) {
               videoState={videoState}
               addToQueue={addToQueue}
               onVideoEnd={handleVideoEnd}
+              handleVoteSkip={handleVoteSkip}
             />
           </div>
           <div id="chat-wrapper">

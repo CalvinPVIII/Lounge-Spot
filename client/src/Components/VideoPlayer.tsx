@@ -11,12 +11,14 @@ interface VideoPlayerProps {
   videoState: VideoPlayerState;
   addToQueue: (url: string) => void;
   onVideoEnd: () => void;
+  handleVoteSkip: () => void;
 }
 
 export default function VideoPlayer(props: VideoPlayerProps) {
   const player = useRef<ReactPlayer>(null);
   const [playerVolume, setPlayerVolume] = useState(50);
   const [muted, setPlayerMuted] = useState(false);
+  console.log(props);
 
   useEffect(() => {
     setTimeout(() => {
@@ -94,6 +96,9 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           <Slider aria-label="Volume" value={playerVolume} onChange={handleVolumeChange} min={0} max={100} />
           <VolumeUp />
         </div>
+        <Button onClick={props.handleVoteSkip} color="secondary" disabled={props.videoState.url === "" ? true : false}>
+          Vote to skip
+        </Button>
       </div>
 
       <VideoSearch handleRequestVideo={handleRequestVideo} />
