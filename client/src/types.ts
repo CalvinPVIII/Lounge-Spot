@@ -99,3 +99,11 @@ export interface VideoInfo {
 export interface SearchApiResponse extends APIResponse {
   data: VideoInfo[];
 }
+
+export interface QueueVideoInfo {
+  title?: string;
+  channel?: string;
+  url?: string;
+  thumbnail?: string;
+  id?: string;
+}

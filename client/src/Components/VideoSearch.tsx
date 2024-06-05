@@ -2,11 +2,11 @@ import { Alert, Button, Snackbar, TextField } from "@mui/material";
 import "../styles/VideoSearch.css";
 import { ChangeEvent, useState } from "react";
 import FlaskApiHelper from "../helpers/flaskApiHelper";
-import { VideoInfo } from "../types";
+import { QueueVideoInfo, VideoInfo } from "../types";
 import ReactPlayer from "react-player";
 
 interface VideoSearchProps {
-  handleRequestVideo: (url: string) => void;
+  handleRequestVideo: (video: QueueVideoInfo) => void;
 }
 
 export default function VideoSearch(props: VideoSearchProps) {
@@ -33,10 +33,20 @@ export default function VideoSearch(props: VideoSearchProps) {
     setErrorSnackbarOpen(false);
   };
 
-  const handleAddVideoToQueue = (url: string) => {
-    if (ReactPlayer.canPlay(url)) {
+  const handleAddVideoToQueue = (video: VideoInfo | string) => {
+    const videoToAdd: QueueVideoInfo = { url: "" };
+    if (typeof video === "string") {
+      videoToAdd.url = video;
+    } else {
+      videoToAdd.url = video.link;
+      videoToAdd.thumbnail = video.thumbnails[0].url;
+      videoToAdd.title = video.title;
+      videoToAdd.channel = video.channel.name;
+    }
+
+    if (ReactPlayer.canPlay(videoToAdd.url)) {
       handleOpenSuccessSnackbar();
-      props.handleRequestVideo(url);
+      props.handleRequestVideo(videoToAdd);
     } else {
       handleOpenErrorSnackbar();
     }
@@ -92,7 +102,7 @@ export default function VideoSearch(props: VideoSearchProps) {
                 {video.viewCount.short} • {video.publishedTime}
               </p>
             </div>
-            <Button variant="outlined" color="secondary" onClick={() => handleAddVideoToQueue(video.link)}>
+            <Button variant="outlined" color="secondary" onClick={() => handleAddVideoToQueue(video)}>
               Add To Queue
             </Button>
           </div>

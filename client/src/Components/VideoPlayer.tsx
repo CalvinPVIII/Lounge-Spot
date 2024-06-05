@@ -1,5 +1,5 @@
 import { Button, Slider } from "@mui/material";
-import { VideoPlayerState } from "../types";
+import { QueueVideoInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
@@ -9,7 +9,7 @@ interface VideoPlayerProps {
   handlePlayVideo: () => void;
   handlePauseVideo: () => void;
   videoState: VideoPlayerState;
-  addToQueue: (url: string) => void;
+  addToQueue: (video: QueueVideoInfo) => void;
   onVideoEnd: () => void;
   handleVoteSkip: () => void;
 }
@@ -39,9 +39,9 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     }
   };
 
-  const handleRequestVideo = (url: string) => {
-    if (url === "") return;
-    props.addToQueue(url);
+  const handleRequestVideo = (video: QueueVideoInfo) => {
+    if (!video.url) return;
+    props.addToQueue(video);
   };
 
   const handleVolumeChange = (_event: Event, newValue: number | number[]) => {

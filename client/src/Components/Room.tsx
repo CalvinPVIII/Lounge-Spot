@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { ChatMessage, RoomState, UserInfo, VideoPlayerState } from "../types";
+import { ChatMessage, QueueVideoInfo, RoomState, UserInfo, VideoPlayerState } from "../types";
 import Chat from "./Chat";
 import VideoPlayer from "./VideoPlayer";
 import "../styles/Room.css";
@@ -40,9 +40,9 @@ export default function Room(props: RoomProps) {
     activeSocket?.emit("stopVideo");
   };
 
-  const addToQueue = (url: string) => {
+  const addToQueue = (video: QueueVideoInfo) => {
     const user: UserInfo = { name: props.name, id: props.userId, color: "", avatar: "" };
-    activeSocket?.emit("addToQueue", { user, url });
+    activeSocket?.emit("addToQueue", { user, video });
   };
 
   const handleVideoEnd = () => {

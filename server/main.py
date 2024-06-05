@@ -5,7 +5,7 @@ import random
 from string import ascii_uppercase
 import uuid
 import time
-from youtubesearchpython import VideosSearch
+from youtubesearchpython import VideosSearch, Video, ResultMode
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super secret key!!!"
@@ -157,12 +157,26 @@ def stop_video():
 def add_to_queue(data):
     room = request.headers.get("Room-Code").upper()
     user_id = request.headers.get("User-Id") 
-    url = data['url']
+    url = data['video']['url']
     if not room in rooms or not room or not user_id or not url:
         return 
-    
+
+
+    title = data.get('title')
+    channel = data.get('channel')
+    thumbnail = data.get('thumbnail')
+
+
+    if not (title and channel and thumbnail):
+        video = Video.getInfo(url, mode=ResultMode.json)
+        title = video['title']
+        channel = video["channel"]['name']
+        thumbnail = video["thumbnails"][0]['url']
+
+    videoInfo = {"title": title, "channel": channel, "thumbnail": thumbnail, "url": url, "id": str(uuid.uuid4())}
+
     room_video_info = rooms[room]['videoInfo']
-    room_video_info['queue'].append(url)
+    room_video_info['queue'].append(videoInfo)
     if(room_video_info['url'] == ""):
         room_video_info['url'] = url
         room_video_info['currentVideoId'] = str(uuid.uuid4())
@@ -199,7 +213,7 @@ def end_video(data):
         room_video_info['skipVotes']= []
     else:
         room_video_info['queue'].pop(0)
-        room_video_info['url'] = room_video_info['queue'][0]
+        room_video_info['url'] = room_video_info['queue'][0]['url']
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
@@ -240,7 +254,7 @@ def handle_move_to_next_video(room_video_info):
         room_video_info['skipVotes']= []
     else:
         room_video_info['queue'].pop(0)
-        room_video_info['url'] = room_video_info['queue'][0]
+        room_video_info['url'] = room_video_info['queue'][0]['url']
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
