@@ -1,8 +1,9 @@
-import { Alert, Button, Snackbar } from "@mui/material";
+import { Alert, Button, Snackbar, TextField } from "@mui/material";
 import "../styles/VideoSearch.css";
 import { ChangeEvent, useState } from "react";
 import FlaskApiHelper from "../helpers/flaskApiHelper";
 import { VideoInfo } from "../types";
+import ReactPlayer from "react-player";
 
 interface VideoSearchProps {
   handleRequestVideo: (url: string) => void;
@@ -11,38 +12,66 @@ interface VideoSearchProps {
 export default function VideoSearch(props: VideoSearchProps) {
   const [searchInput, setSearchInput] = useState("");
   const [videoSearchResult, setVideoSearchResult] = useState<VideoInfo[]>([]);
+  const [buttonText, setButtonText] = useState("search");
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
 
-  const handleOpenSnackbar = () => {
-    setSnackbarOpen(true);
+  const handleOpenSuccessSnackbar = () => {
+    setSuccessSnackbarOpen(true);
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
+  const handleCloseSuccessSnackbar = () => {
+    setSuccessSnackbarOpen(false);
+  };
+
+  const handleOpenErrorSnackbar = () => {
+    setErrorSnackbarOpen(true);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setErrorSnackbarOpen(false);
   };
 
   const handleAddVideoToQueue = (url: string) => {
-    handleOpenSnackbar();
-    props.handleRequestVideo(url);
+    if (ReactPlayer.canPlay(url)) {
+      handleOpenSuccessSnackbar();
+      props.handleRequestVideo(url);
+    } else {
+      handleOpenErrorSnackbar();
+    }
   };
 
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
+    setButtonText(checkIfUrlOrSearch(e.target.value));
   };
 
-  const handleInputSearch = async () => {
+  const searchForVideos = async () => {
+    const checkUrl = checkIfUrlOrSearch(searchInput);
+    if (checkUrl === "add to queue") {
+      handleAddVideoToQueue(searchInput);
+      return;
+    }
     const searchResults = await FlaskApiHelper.searchVideo(searchInput);
     if (searchResults.status === "success") {
       setVideoSearchResult(searchResults.data);
     }
   };
 
+  const checkIfUrlOrSearch = (url: string) => {
+    if (url.includes("youtube.com/watch?v=") || url.includes("twitch.tv/")) {
+      return "add to queue";
+    } else {
+      return "search";
+    }
+  };
+
   return (
     <>
       <div id="search-input">
-        <input type="text" placeholder="paste url or search" value={searchInput} onChange={handleSearchInput} />
-        <Button onClick={handleInputSearch}>Search</Button>
+        <TextField placeholder="paste url or search" value={searchInput} onChange={handleSearchInput} variant="filled" size="small" label="search" />
+        <Button onClick={searchForVideos}>{buttonText}</Button>
       </div>
       <div id="search-results">
         {videoSearchResult.map((video) => (
@@ -69,9 +98,14 @@ export default function VideoSearch(props: VideoSearchProps) {
           </div>
         ))}
       </div>
-      <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success">
+      <Snackbar open={successSnackbarOpen} autoHideDuration={2000} onClose={handleCloseSuccessSnackbar}>
+        <Alert onClose={handleCloseSuccessSnackbar} severity="success">
           video added to queue
+        </Alert>
+      </Snackbar>
+      <Snackbar open={errorSnackbarOpen} autoHideDuration={2000} onClose={handleCloseErrorSnackbar}>
+        <Alert onClose={handleCloseErrorSnackbar} severity="error">
+          Unable To Play Video
         </Alert>
       </Snackbar>
     </>
