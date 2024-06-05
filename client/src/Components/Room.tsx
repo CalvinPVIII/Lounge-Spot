@@ -7,6 +7,8 @@ import "../styles/Room.css";
 import VideoSearch from "./VideoSearch";
 import VideoQueue from "./VideoQueue";
 import ContentTabs from "./ContentTabs";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { Tooltip, IconButton } from "@mui/material";
 
 interface RoomProps {
   roomCode: string;
@@ -16,6 +18,7 @@ interface RoomProps {
 
 export default function Room(props: RoomProps) {
   const [isConnected, setIsConnected] = useState(false);
+  const [toolTipText, setToolTipText] = useState("Copy to clipboard");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [members, setMembers] = useState<{ [id: string]: UserInfo }>({});
   const [activeSocket, setActiveSocket] = useState<Socket | null>(null);
@@ -29,6 +32,7 @@ export default function Room(props: RoomProps) {
     playPauseOffset: 0,
     queue: [],
     currentVideoId: "",
+    skipVotes: [],
   });
 
   const sendMessage = (message: string) => {
@@ -99,10 +103,30 @@ export default function Room(props: RoomProps) {
     };
   }, []);
 
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(props.roomCode);
+    setToolTipText("Copied ✅");
+  };
+
+  const resetTooltip = () => {
+    setTimeout(() => {
+      setToolTipText("Copy to clipboard");
+    }, 200);
+  };
+
   if (isConnected)
     return (
       <>
-        <h1>ROOM: {props.roomCode}</h1>
+        <h1 id="room-header">
+          Lounge: {props.roomCode}{" "}
+          <span onMouseLeave={resetTooltip}>
+            <Tooltip title={toolTipText} arrow color="success">
+              <IconButton color="secondary" id="copy-button" size="large" onClick={handleCopyClick}>
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </span>
+        </h1>
         <div id="room-wrapper">
           <div id="video-player-wrapper">
             <VideoPlayer
@@ -112,6 +136,7 @@ export default function Room(props: RoomProps) {
               addToQueue={addToQueue}
               onVideoEnd={handleVideoEnd}
               handleVoteSkip={handleVoteSkip}
+              members={members}
             />
             <ContentTabs>
               <VideoQueue queue={videoState.queue} />

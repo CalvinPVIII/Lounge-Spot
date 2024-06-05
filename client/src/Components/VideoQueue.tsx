@@ -9,7 +9,7 @@ export default function VideoQueue(props: VideoQueueProps) {
   return (
     <>
       {props.queue.length === 0 ? (
-        <p>There are no videos in the queue</p>
+        <p id="no-videos-message">There are no videos in the queue</p>
       ) : (
         <>
           {props.queue.map((video) => (

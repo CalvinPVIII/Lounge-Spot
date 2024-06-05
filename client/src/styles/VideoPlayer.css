@@ -27,3 +27,20 @@
   display: flex;
   align-items: center;
 }
+
+#sync-spacer {
+  flex-grow: 1;
+}
+
+#skip-info {
+  display: flex;
+}
+
+#skip-info p {
+  opacity: 0.3;
+  font-size: small;
+}
+
+#play-pause-button {
+  margin-top: 3px;
+}

@@ -3,7 +3,8 @@ import { ChatMessage } from "../types";
 import { useState, useLayoutEffect, useRef } from "react";
 import useStayScrolled from "react-stay-scrolled";
 import "../styles/Chat.css";
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
+import { useBottomScrollListener } from "react-bottom-scroll-listener";
 interface ChatProps {
   messages: ChatMessage[];
   handleSendMessage: (message: string) => void;
@@ -12,19 +13,24 @@ interface ChatProps {
 
 export default function Chat(props: ChatProps) {
   const [chatInput, setChatInput] = useState("");
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   const messagesRef: RefObject<HTMLDivElement> = useRef(null);
   const { stayScrolled, scrollBottom } = useStayScrolled(messagesRef);
+  const scrollRef: RefObject<HTMLElement> = useBottomScrollListener(() => setIsScrolledToBottom(true));
 
   useLayoutEffect(() => {
-    stayScrolled();
+    if (!isScrolledToBottom) {
+      stayScrolled();
+    } else {
+      scrollBottom();
+    }
   }, [props.messages.length]);
+
   const handleSendChat = () => {
     props.handleSendMessage(chatInput);
   };
 
-  useEffect(() => {
-    scrollBottom();
-  }, []);
+  useEffect(() => {}, [props.messages]);
 
   const formatDate = (timestamp: string) => {
     const mili = parseInt(timestamp) * 1000;
@@ -52,26 +58,33 @@ export default function Chat(props: ChatProps) {
         <div id="chat-header">
           <p>In Room: {props.roomCode}</p>
         </div>
-        <div id="messages-container" ref={messagesRef}>
-          {props.messages.map((message, index) => (
-            <React.Fragment key={index}>
-              {message.user.id === "system" ? (
-                <p className="system-message">{message.message}</p>
-              ) : (
-                <div className={index % 2 === 0 ? "user-message even-message" : "user-message odd-message"}>
-                  <p className="message-info">
-                    {message.user.name} <span className="message-timestamp">{formatDate(message.timestamp)}</span>
-                  </p>
-                  <p className="message-content">{message.message}</p>
-                </div>
-              )}
-            </React.Fragment>
-          ))}
+        <div ref={scrollRef}>
+          <div id="messages-container" ref={messagesRef}>
+            {props.messages.map((message, index) => (
+              <React.Fragment key={index}>
+                {message.user.id === "system" ? (
+                  <p className="system-message">{message.message}</p>
+                ) : (
+                  <div className={index % 2 === 0 ? "user-message even-message" : "user-message odd-message"}>
+                    <p className="message-info">
+                      {message.user.name} <span className="message-timestamp">{formatDate(message.timestamp)}</span>
+                    </p>
+                    <p className="message-content">{message.message}</p>
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
         <form onSubmit={handleChatSubmit}>
           <div id="chat-input-container">
-            <input type="text" onChange={(e) => setChatInput(e.target.value)} id="chat-input" value={chatInput} />
-            <Button type="submit">Send</Button>
+            <div id="chat-input">
+              <TextField onChange={(e) => setChatInput(e.target.value)} id="text-input" value={chatInput} variant="standard" size="small" fullWidth />
+            </div>
+            {/* <input type="text" /> */}
+            <Button type="submit" size="large">
+              Send
+            </Button>
           </div>
         </form>
       </div>

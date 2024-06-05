@@ -45,6 +45,7 @@ export interface VideoPlayerState {
   playPauseOffset: number;
   queue: QueueVideoInfo[];
   currentVideoId: string;
+  skipVotes: string[];
 }
 
 type Thumbnail = {

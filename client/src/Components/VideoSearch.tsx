@@ -1,6 +1,6 @@
-import { Alert, Button, Snackbar, TextField } from "@mui/material";
+import { Alert, Button, CircularProgress, Snackbar, TextField } from "@mui/material";
 import "../styles/VideoSearch.css";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import FlaskApiHelper from "../helpers/flaskApiHelper";
 import { QueueVideoInfo, VideoInfo } from "../types";
 import ReactPlayer from "react-player";
@@ -13,6 +13,7 @@ export default function VideoSearch(props: VideoSearchProps) {
   const [searchInput, setSearchInput] = useState("");
   const [videoSearchResult, setVideoSearchResult] = useState<VideoInfo[]>([]);
   const [buttonText, setButtonText] = useState("search");
+  const [searching, setSearching] = useState(false);
 
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
@@ -50,6 +51,7 @@ export default function VideoSearch(props: VideoSearchProps) {
     } else {
       handleOpenErrorSnackbar();
     }
+    setSearching(false);
   };
 
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +59,9 @@ export default function VideoSearch(props: VideoSearchProps) {
     setButtonText(checkIfUrlOrSearch(e.target.value));
   };
 
-  const searchForVideos = async () => {
+  const searchForVideos = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSearching(true);
     const checkUrl = checkIfUrlOrSearch(searchInput);
     if (checkUrl === "add to queue") {
       handleAddVideoToQueue(searchInput);
@@ -67,6 +71,7 @@ export default function VideoSearch(props: VideoSearchProps) {
     if (searchResults.status === "success") {
       setVideoSearchResult(searchResults.data);
     }
+    setSearching(false);
   };
 
   const checkIfUrlOrSearch = (url: string) => {
@@ -79,34 +84,47 @@ export default function VideoSearch(props: VideoSearchProps) {
 
   return (
     <>
-      <div id="search-input">
-        <TextField placeholder="paste url or search" value={searchInput} onChange={handleSearchInput} variant="filled" size="small" label="search" />
-        <Button onClick={searchForVideos}>{buttonText}</Button>
-      </div>
+      <form onSubmit={searchForVideos} id="search-input">
+        <TextField
+          placeholder="paste url or search"
+          value={searchInput}
+          onChange={handleSearchInput}
+          variant="standard"
+          size="small"
+          label="search"
+        />
+        <Button type="submit">{buttonText}</Button>
+      </form>
       <div id="search-results">
-        {videoSearchResult.map((video) => (
-          <div key={video.id} className="video-wrapper">
-            <div className="video-info-img">
-              <img src={video.thumbnails[0].url} className="video-thumbnail" />
-              <p className="video-duration">{video.duration}</p>
-            </div>
-            <div className="video-info">
-              <div className="channel-icon-container">
-                <img src={video.channel.thumbnails[0].url} className="channel-icon" />
+        {searching ? (
+          <CircularProgress />
+        ) : (
+          <>
+            {videoSearchResult.map((video) => (
+              <div key={video.id} className="video-wrapper">
+                <div className="video-info-img">
+                  <img src={video.thumbnails[0].url} className="video-thumbnail" />
+                  <p className="video-duration">{video.duration}</p>
+                </div>
+                <div className="video-info">
+                  <div className="channel-icon-container">
+                    <img src={video.channel.thumbnails[0].url} className="channel-icon" />
+                  </div>
+                  <p>{video.title}</p>
+                </div>
+                <div className="video-info-bottom">
+                  <p>{video.channel.name}</p>
+                  <p className="video-views-and-date">
+                    {video.viewCount.short} • {video.publishedTime}
+                  </p>
+                </div>
+                <Button variant="outlined" color="secondary" onClick={() => handleAddVideoToQueue(video)}>
+                  Add To Queue
+                </Button>
               </div>
-              <p>{video.title}</p>
-            </div>
-            <div className="video-info-bottom">
-              <p>{video.channel.name}</p>
-              <p className="video-views-and-date">
-                {video.viewCount.short} • {video.publishedTime}
-              </p>
-            </div>
-            <Button variant="outlined" color="secondary" onClick={() => handleAddVideoToQueue(video)}>
-              Add To Queue
-            </Button>
-          </div>
-        ))}
+            ))}
+          </>
+        )}
       </div>
       <Snackbar open={successSnackbarOpen} autoHideDuration={2000} onClose={handleCloseSuccessSnackbar}>
         <Alert onClose={handleCloseSuccessSnackbar} severity="success">

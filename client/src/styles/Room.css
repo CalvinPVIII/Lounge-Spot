@@ -1,7 +1,20 @@
 #room-wrapper {
   display: flex;
+  padding: 20px;
 }
 
 #video-player-wrapper {
   flex-grow: 1;
+}
+
+#room-header {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 300;
+  font-size: 30px;
+  padding-left: 20px;
+  margin-bottom: -10px;
+}
+
+#copy-button {
+  margin-top: -7px;
 }

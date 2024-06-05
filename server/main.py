@@ -186,7 +186,7 @@ def add_to_queue(data):
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes'] = []
         socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
-    print(room_video_info['queue'])
+    socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
 
 
 
@@ -237,7 +237,8 @@ def vote_skip():
     room_video_info['skipVotes'].append(user_id)
     if len(room_video_info['skipVotes']) >= len(rooms[room]['members'])/2:
         handle_move_to_next_video(room_video_info)
-        socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
+
+    socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
 
 
 

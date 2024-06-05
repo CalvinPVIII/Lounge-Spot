@@ -1,9 +1,10 @@
-import { Button, Slider } from "@mui/material";
-import { QueueVideoInfo, VideoPlayerState } from "../types";
+import { Button, IconButton, Slider } from "@mui/material";
+import { QueueVideoInfo, UserInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
-import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined } from "@mui/icons-material";
+import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined, Sync } from "@mui/icons-material";
+
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
   handlePauseVideo: () => void;
@@ -11,20 +12,20 @@ interface VideoPlayerProps {
   addToQueue: (video: QueueVideoInfo) => void;
   onVideoEnd: () => void;
   handleVoteSkip: () => void;
+  members: { [id: string]: UserInfo };
 }
 
 export default function VideoPlayer(props: VideoPlayerProps) {
   const player = useRef<ReactPlayer>(null);
   const [playerVolume, setPlayerVolume] = useState(50);
   const [muted, setPlayerMuted] = useState(false);
-  console.log(props);
 
   useEffect(() => {
     setTimeout(() => {
       if (!player) return;
       syncPlayer();
     }, 1000);
-  }, [props.videoState]);
+  }, [props.videoState.url]);
 
   const syncPlayer = () => {
     if (props.videoState.startTimeStamp === 0) return;
@@ -74,13 +75,17 @@ export default function VideoPlayer(props: VideoPlayerProps) {
       <div id="player-controls-wrapper">
         <div>
           {props.videoState.playing ? (
-            <Button onClick={props.handlePauseVideo} color="secondary" disabled={props.videoState.url === "" ? true : false}>
-              <PauseOutlined />
-            </Button>
+            <div id="play-pause-button">
+              <IconButton onClick={props.handlePauseVideo} color="secondary" disabled={props.videoState.url === "" ? true : false}>
+                <PauseOutlined />
+              </IconButton>
+            </div>
           ) : (
-            <Button onClick={props.handlePlayVideo} color="secondary" disabled={props.videoState.url === "" ? true : false}>
-              <PlayArrowOutlined />
-            </Button>
+            <div id="play-pause-button">
+              <IconButton onClick={props.handlePlayVideo} color="secondary" disabled={props.videoState.url === "" ? true : false}>
+                <PlayArrowOutlined />
+              </IconButton>
+            </div>
           )}
         </div>
 
@@ -90,9 +95,19 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           <Slider aria-label="Volume" value={playerVolume} onChange={handleVolumeChange} min={0} max={100} />
           <VolumeUp />
         </div>
-        <Button onClick={props.handleVoteSkip} color="secondary" disabled={props.videoState.url === "" ? true : false}>
-          Vote to skip
-        </Button>
+        <div id="skip-info">
+          <Button onClick={props.handleVoteSkip} color="secondary" disabled={props.videoState.url === "" ? true : false}>
+            Vote to skip
+          </Button>
+          <p>
+            {props.videoState.skipVotes.length}/{Math.ceil(Object.values(props.members).length / 2)}
+            {}
+          </p>
+        </div>
+        <div id="sync-spacer"></div>
+        <IconButton onClick={syncPlayer} disabled={props.videoState.url === "" ? true : false}>
+          <Sync />
+        </IconButton>
       </div>
     </>
   );

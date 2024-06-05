@@ -1,5 +1,6 @@
 import { Tab, Tabs } from "@mui/material";
 import { ReactNode, useState } from "react";
+import "../styles/ContentTabs.css";
 
 interface ContentTabsProps {
   children: ReactNode[];
@@ -7,7 +8,6 @@ interface ContentTabsProps {
 
 const ContentTabs: React.FC<ContentTabsProps> = ({ children }) => {
   const [value, setValue] = useState("1");
-  console.log(children);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -19,7 +19,9 @@ const ContentTabs: React.FC<ContentTabsProps> = ({ children }) => {
         <Tab label="Queue" value="1" />
         <Tab label="Search" value="2" />
       </Tabs>
-      {children[parseInt(value) - 1]}
+      {children.map((child, index) => (
+        <div className={parseInt(value) - 1 === index ? "active-content" : "hidden-content"}>{child}</div>
+      ))}
     </>
   );
 };

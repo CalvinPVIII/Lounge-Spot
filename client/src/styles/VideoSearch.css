@@ -1,8 +1,12 @@
 #search-input {
-  border-bottom: 1px solid #484848;
+  /* border-bottom: 1px solid #484848; */
   display: flex;
   align-items: center;
   padding-top: 10px;
+}
+
+#search-input button {
+  margin-bottom: -25px;
 }
 
 #search-input input {
@@ -15,6 +19,7 @@
   flex-flow: row wrap;
   justify-content: space-around;
   gap: 10px;
+  margin-left: -7px;
 }
 
 .video-info-img {

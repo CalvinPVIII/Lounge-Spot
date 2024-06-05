@@ -56,7 +56,7 @@ export default function Home(props: HomeProps) {
       {error ? <p className="error"> {error}</p> : null}
       <div id="home-name-input">
         <div>
-          <TextField label="name" value={name} onChange={handleChangeName} />
+          <TextField label="name" value={name} onChange={handleChangeName} variant="standard" />
         </div>
       </div>
       <div id="home-main-buttons">
@@ -69,7 +69,7 @@ export default function Home(props: HomeProps) {
         </div>
         <div id="home-spacer"></div>
         <div id="home-join">
-          <TextField label="room code" value={roomCode} onChange={handleChangeRoomCode} size="small" />
+          <TextField label="room code" value={roomCode} onChange={handleChangeRoomCode} size="small" variant="standard" />
           <Box textAlign="center" marginTop={"15px"}>
             <Button variant="outlined" onClick={() => handleJoinRoom()} size="small" className="home-button" sx={{ borderRadius: 28 }}>
               Join Room
