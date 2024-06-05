@@ -1,0 +1,11 @@
+.video-queue-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  border-bottom: 1px solid #484848;
+}
+
+.video-queue-channel {
+  margin-top: -10px;
+  opacity: 0.5;
+}

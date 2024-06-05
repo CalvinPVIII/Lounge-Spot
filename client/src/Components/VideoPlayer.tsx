@@ -4,7 +4,6 @@ import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
 import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined } from "@mui/icons-material";
-import VideoSearch from "./VideoSearch";
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
   handlePauseVideo: () => void;
@@ -37,11 +36,6 @@ export default function VideoPlayer(props: VideoPlayerProps) {
       const videoPlayingLength = currentTime - props.videoState.startTimeStamp;
       player.current?.seekTo(videoPlayingLength, "seconds");
     }
-  };
-
-  const handleRequestVideo = (video: QueueVideoInfo) => {
-    if (!video.url) return;
-    props.addToQueue(video);
   };
 
   const handleVolumeChange = (_event: Event, newValue: number | number[]) => {
@@ -100,8 +94,6 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           Vote to skip
         </Button>
       </div>
-
-      <VideoSearch handleRequestVideo={handleRequestVideo} />
     </>
   );
 }

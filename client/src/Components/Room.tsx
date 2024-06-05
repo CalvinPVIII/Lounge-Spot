@@ -4,6 +4,9 @@ import { ChatMessage, QueueVideoInfo, RoomState, UserInfo, VideoPlayerState } fr
 import Chat from "./Chat";
 import VideoPlayer from "./VideoPlayer";
 import "../styles/Room.css";
+import VideoSearch from "./VideoSearch";
+import VideoQueue from "./VideoQueue";
+import ContentTabs from "./ContentTabs";
 
 interface RoomProps {
   roomCode: string;
@@ -41,6 +44,7 @@ export default function Room(props: RoomProps) {
   };
 
   const addToQueue = (video: QueueVideoInfo) => {
+    if (!video.url) return;
     const user: UserInfo = { name: props.name, id: props.userId, color: "", avatar: "" };
     activeSocket?.emit("addToQueue", { user, video });
   };
@@ -109,6 +113,10 @@ export default function Room(props: RoomProps) {
               onVideoEnd={handleVideoEnd}
               handleVoteSkip={handleVoteSkip}
             />
+            <ContentTabs>
+              <VideoQueue queue={videoState.queue} />
+              <VideoSearch handleRequestVideo={addToQueue} />
+            </ContentTabs>
           </div>
           <div id="chat-wrapper">
             <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />

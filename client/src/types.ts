@@ -43,7 +43,7 @@ export interface VideoPlayerState {
   startTimeStamp: number;
   pauseTimeStamp: number;
   playPauseOffset: number;
-  queue: [];
+  queue: QueueVideoInfo[];
   currentVideoId: string;
 }
 
