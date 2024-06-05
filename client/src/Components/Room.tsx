@@ -83,7 +83,6 @@ export default function Room(props: RoomProps) {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("establishConnection", (data: RoomState) => {
-      console.log(data);
       setMessages(data.messages);
       setMembers(data.members);
       setVideoState(data.videoInfo);

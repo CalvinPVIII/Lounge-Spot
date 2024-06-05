@@ -1,5 +1,4 @@
 #search-input {
-  /* border-bottom: 1px solid #484848; */
   display: flex;
   align-items: center;
   padding-top: 10px;
@@ -15,11 +14,9 @@
 
 #search-results {
   margin-top: 20px;
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 10px;
-  margin-left: -7px;
 }
 
 .video-info-img {
@@ -28,7 +25,8 @@
 }
 
 .video-thumbnail {
-  width: 300px;
+  width: 100%;
+  height: auto;
 }
 
 .video-duration {
@@ -47,24 +45,38 @@
 }
 
 .channel-icon {
-  max-width: 100%;
+  width: 40px;
+  margin-top: 10px;
   height: auto;
   border-radius: 40px;
 }
 
-.channel-icon-container {
-  width: 40px;
-}
-
 .video-wrapper {
+  display: flex;
+  flex-direction: column;
   max-width: 300px;
 }
 
 .video-info-bottom {
   opacity: 0.6;
   margin-top: -20px;
+  margin-left: 45px;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 16px;
 }
 
 .video-views-and-date {
   margin-top: -10px;
+}
+
+.add-to-queue-button-wrapper {
+  margin-left: 45px;
+}
+
+.video-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -110,17 +110,27 @@ export default function VideoSearch(props: VideoSearchProps) {
                   <div className="channel-icon-container">
                     <img src={video.channel.thumbnails[0].url} className="channel-icon" />
                   </div>
-                  <p>{video.title}</p>
+                  <p className="video-title">{video.title}</p>
                 </div>
                 <div className="video-info-bottom">
                   <p>{video.channel.name}</p>
                   <p className="video-views-and-date">
-                    {video.viewCount.short} • {video.publishedTime}
+                    {video.link.includes("youtube.com/") && !video.viewCount.short && !video.publishedTime ? (
+                      <>• Live</>
+                    ) : (
+                      <>
+                        {video.viewCount.short} • {video.publishedTime}
+                      </>
+                    )}
                   </p>
                 </div>
-                <Button variant="outlined" color="secondary" onClick={() => handleAddVideoToQueue(video)}>
-                  Add To Queue
-                </Button>
+                <div className="add-to-queue-button-wrapper">
+                  <div>
+                    <Button variant="outlined" color="secondary" onClick={() => handleAddVideoToQueue(video)}>
+                      Add To Queue
+                    </Button>
+                  </div>
+                </div>
               </div>
             ))}
           </>

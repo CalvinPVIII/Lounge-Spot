@@ -20,7 +20,9 @@ const ContentTabs: React.FC<ContentTabsProps> = ({ children }) => {
         <Tab label="Search" value="2" />
       </Tabs>
       {children.map((child, index) => (
-        <div className={parseInt(value) - 1 === index ? "active-content" : "hidden-content"}>{child}</div>
+        <div className={parseInt(value) - 1 === index ? "active-content" : "hidden-content"} key={index}>
+          {child}
+        </div>
       ))}
     </>
   );

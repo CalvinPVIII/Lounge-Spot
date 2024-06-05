@@ -13,7 +13,7 @@ export default function VideoQueue(props: VideoQueueProps) {
       ) : (
         <>
           {props.queue.map((video) => (
-            <div className="video-queue-wrapper">
+            <div className="video-queue-wrapper" key={video.id}>
               <div className="video-queue-right">
                 <img src={video.thumbnail} />
               </div>

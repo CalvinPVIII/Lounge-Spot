@@ -30,7 +30,6 @@ export default function Home(props: HomeProps) {
       setError("");
       handleJoinRoom(createRoomResponse.data.roomCode);
     }
-    console.log(createRoomResponse);
   };
 
   const handleJoinRoom = async (code?: string) => {
@@ -47,7 +46,6 @@ export default function Home(props: HomeProps) {
     if (joinRoomResponse.status === "success") {
       props.handleJoinRoom(code, joinRoomResponse.data.userId, name);
     }
-    console.log(joinRoomResponse);
   };
 
   return (

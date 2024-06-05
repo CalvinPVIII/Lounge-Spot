@@ -1,4 +1,4 @@
-import React, { FormEvent, RefObject, useEffect } from "react";
+import React, { FormEvent, LegacyRef, RefObject, useEffect } from "react";
 import { ChatMessage } from "../types";
 import { useState, useLayoutEffect, useRef } from "react";
 import useStayScrolled from "react-stay-scrolled";
@@ -16,7 +16,7 @@ export default function Chat(props: ChatProps) {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   const messagesRef: RefObject<HTMLDivElement> = useRef(null);
   const { stayScrolled, scrollBottom } = useStayScrolled(messagesRef);
-  const scrollRef: RefObject<HTMLElement> = useBottomScrollListener(() => setIsScrolledToBottom(true));
+  const scrollRef: LegacyRef<HTMLDivElement> = useBottomScrollListener(() => setIsScrolledToBottom(true));
 
   useLayoutEffect(() => {
     if (!isScrolledToBottom) {
@@ -81,7 +81,6 @@ export default function Chat(props: ChatProps) {
             <div id="chat-input">
               <TextField onChange={(e) => setChatInput(e.target.value)} id="text-input" value={chatInput} variant="standard" size="small" fullWidth />
             </div>
-            {/* <input type="text" /> */}
             <Button type="submit" size="large">
               Send
             </Button>
