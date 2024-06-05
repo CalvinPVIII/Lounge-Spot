@@ -21,7 +21,7 @@
   width: 400px;
   border-radius: 4px;
   position: sticky;
-  top: 0;
+  top: -1px;
 }
 
 #messages-container {

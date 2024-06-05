@@ -56,7 +56,7 @@ export default function Chat(props: ChatProps) {
     <>
       <div id="chat-container">
         <div id="chat-header">
-          <p>In Room: {props.roomCode}</p>
+          <p>Chat</p>
         </div>
         <div ref={scrollRef}>
           <div id="messages-container" ref={messagesRef}>

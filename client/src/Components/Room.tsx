@@ -137,7 +137,7 @@ export default function Room(props: RoomProps) {
               handleVoteSkip={handleVoteSkip}
               members={members}
             />
-            <ContentTabs>
+            <ContentTabs headers={["Queue", "Search"]}>
               <VideoQueue queue={videoState.queue} />
               <VideoSearch handleRequestVideo={addToQueue} />
             </ContentTabs>
