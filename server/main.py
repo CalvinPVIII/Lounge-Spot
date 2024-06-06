@@ -270,7 +270,7 @@ def handle_move_to_next_video(room_video_info):
 
 
 if(__name__) == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=False)
 
 
 
