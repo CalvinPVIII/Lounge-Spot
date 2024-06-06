@@ -70,7 +70,7 @@ export default function Chat(props: ChatProps) {
 
   return (
     <>
-      <div id={isBigScreen ? "chat-container" : ""}>
+      <div id={isBigScreen ? "chat-container" : "chat-container-small"}>
         <div id="chat-header">
           {isBigScreen ? (
             <p>Chat</p>
@@ -106,7 +106,7 @@ export default function Chat(props: ChatProps) {
           </div>
         </div>
         <form onSubmit={handleChatSubmit}>
-          <div id="chat-input-container">
+          <div id="chat-input-container" className={isBigScreen ? "" : "chat-input-container-small"}>
             <div id="chat-input">
               <TextField onChange={(e) => setChatInput(e.target.value)} id="text-input" value={chatInput} variant="standard" size="small" fullWidth />
             </div>

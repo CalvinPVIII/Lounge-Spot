@@ -16,15 +16,21 @@
   gap: 30px;
 }
 
+#player-controls-wrapper-small {
+  display: flex;
+  background-color: #252525;
+}
+
 #volume-controls {
   display: flex;
-  width: 200px;
+  width: 300px;
   align-items: center;
   gap: 10px;
 }
 
-#add-to-queue-button {
+#volume-controls-small {
   display: flex;
+  width: 100px;
   align-items: center;
 }
 

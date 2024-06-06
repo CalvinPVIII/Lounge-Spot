@@ -74,7 +74,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
         />
       </div>
 
-      <div id="player-controls-wrapper">
+      <div id={isBigScreen ? "player-controls-wrapper" : "player-controls-wrapper-small"}>
         <div>
           {props.videoState.playing ? (
             <div id="play-pause-button">
@@ -91,7 +91,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           )}
         </div>
 
-        <div id="volume-controls">
+        <div id={isBigScreen ? "volume-controls" : "volume-controls-small"}>
           {playerVolume === 0 || muted ? <VolumeOffOutlined onClick={handleMute} /> : <VolumeDown onClick={handleMute} />}
 
           <Slider aria-label="Volume" value={playerVolume} onChange={handleVolumeChange} min={0} max={100} />

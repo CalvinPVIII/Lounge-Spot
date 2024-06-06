@@ -1,6 +1,7 @@
 import { Tab, Tabs } from "@mui/material";
 import { ReactNode, useState } from "react";
 import "../styles/ContentTabs.css";
+import { useMediaQuery } from "react-responsive";
 
 interface ContentTabsProps {
   children: ReactNode[];
@@ -9,13 +10,14 @@ interface ContentTabsProps {
 
 const ContentTabs: React.FC<ContentTabsProps> = ({ children, headers }) => {
   const [value, setValue] = useState("1");
+  const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
 
   return (
-    <>
+    <div className={isBigScreen ? "" : "content-tabs-wrapper-small"}>
       <Tabs onChange={handleChange} value={value} centered>
         {headers.map((header, index) => (
           <Tab label={header} value={(index + 1).toString()} key={"header" + index} />
@@ -26,7 +28,7 @@ const ContentTabs: React.FC<ContentTabsProps> = ({ children, headers }) => {
           {child}
         </div>
       ))}
-    </>
+    </div>
   );
 };
 
