@@ -1,10 +1,9 @@
-import React, { FormEvent, LegacyRef, RefObject, useEffect } from "react";
+import React, { FormEvent, RefObject, useEffect } from "react";
 import { ChatMessage } from "../types";
 import { useState, useLayoutEffect, useRef } from "react";
 import useStayScrolled from "react-stay-scrolled";
 import "../styles/Chat.css";
 import { Button, IconButton, TextField, Tooltip } from "@mui/material";
-import { useBottomScrollListener } from "react-bottom-scroll-listener";
 import { useMediaQuery } from "react-responsive";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
@@ -20,7 +19,7 @@ export default function Chat(props: ChatProps) {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   const messagesRef: RefObject<HTMLDivElement> = useRef(null);
   const { stayScrolled, scrollBottom } = useStayScrolled(messagesRef);
-  const scrollRef: LegacyRef<HTMLDivElement> = useBottomScrollListener(() => setIsScrolledToBottom(true));
+
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   useLayoutEffect(() => {
@@ -68,6 +67,13 @@ export default function Chat(props: ChatProps) {
     }, 200);
   };
 
+  const handleScroll = () => {
+    const element = document.querySelector(".messages-scroll");
+    if (!element) return false;
+
+    setIsScrolledToBottom(Math.abs(element.scrollHeight - (element.scrollTop + element.clientHeight)) <= 1);
+  };
+
   return (
     <>
       <div id={isBigScreen ? "chat-container" : "chat-container-small"}>
@@ -87,23 +93,28 @@ export default function Chat(props: ChatProps) {
             </p>
           )}
         </div>
-        <div ref={scrollRef}>
-          <div className="scroll-bar" id={isBigScreen ? "messages-container" : "messages-container-small"} ref={messagesRef}>
-            {props.messages.map((message, index) => (
-              <React.Fragment key={index}>
-                {message.user.id === "system" ? (
-                  <p className="system-message">{message.message}</p>
-                ) : (
-                  <div className={index % 2 === 0 ? "user-message even-message" : "user-message odd-message"}>
-                    <p className="message-info">
-                      {message.user.name} <span className="message-timestamp">{formatDate(message.timestamp)}</span>
-                    </p>
-                    <p className="message-content">{message.message}</p>
-                  </div>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
+
+        <div
+          onScroll={handleScroll}
+          className="scroll-bar messages-scroll"
+          id={isBigScreen ? "messages-container" : "messages-container-small"}
+          ref={messagesRef}
+          style={isBigScreen ? {} : { paddingBottom: "5vh" }}
+        >
+          {props.messages.map((message, index) => (
+            <React.Fragment key={index}>
+              {message.user.id === "system" ? (
+                <p className="system-message">{message.message}</p>
+              ) : (
+                <div className={index % 2 === 0 ? "user-message even-message" : "user-message odd-message"}>
+                  <p className="message-info">
+                    {message.user.name} <span className="message-timestamp">{formatDate(message.timestamp)}</span>
+                  </p>
+                  <p className="message-content">{message.message}</p>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
         </div>
         <form onSubmit={handleChatSubmit}>
           <div id="chat-input-container" className={isBigScreen ? "" : "chat-input-container-small"}>
