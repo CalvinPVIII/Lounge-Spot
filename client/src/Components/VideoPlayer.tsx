@@ -4,6 +4,7 @@ import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
 import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined, Sync } from "@mui/icons-material";
+import { useMediaQuery } from "react-responsive";
 
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
@@ -19,6 +20,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const player = useRef<ReactPlayer>(null);
   const [playerVolume, setPlayerVolume] = useState(50);
   const [muted, setPlayerMuted] = useState(false);
+  const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   useEffect(() => {
     setTimeout(() => {
@@ -49,7 +51,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <>
-      <div id="player-wrapper">
+      <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
         <ReactPlayer
           className="react-player"
           ref={player}

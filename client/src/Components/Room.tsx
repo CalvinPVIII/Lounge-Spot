@@ -9,6 +9,7 @@ import VideoQueue from "./VideoQueue";
 import ContentTabs from "./ContentTabs";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Tooltip, IconButton } from "@mui/material";
+import { useMediaQuery } from "react-responsive";
 
 interface RoomProps {
   roomCode: string;
@@ -34,6 +35,8 @@ export default function Room(props: RoomProps) {
     currentVideoId: "",
     skipVotes: [],
   });
+
+  const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const sendMessage = (message: string) => {
     const user: UserInfo = { name: props.name, id: props.userId, color: "", avatar: "" };
@@ -116,17 +119,20 @@ export default function Room(props: RoomProps) {
   if (isConnected)
     return (
       <>
-        <h1 id="room-header">
-          Lounge: {props.roomCode}{" "}
-          <span onMouseLeave={resetTooltip}>
-            <Tooltip title={toolTipText} arrow color="success">
-              <IconButton color="secondary" id="copy-button" size="large" onClick={handleCopyClick}>
-                <ContentCopyIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </span>
-        </h1>
-        <div id="room-wrapper">
+        {isBigScreen ? (
+          <h1 id="room-header">
+            Lounge: {props.roomCode}{" "}
+            <span onMouseLeave={resetTooltip}>
+              <Tooltip title={toolTipText} arrow color="success">
+                <IconButton color="secondary" id="copy-button" size="large" onClick={handleCopyClick}>
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </span>
+          </h1>
+        ) : null}
+
+        <div id={isBigScreen ? "room-wrapper" : "room-wrapper-small"}>
           <div id="video-player-wrapper">
             <VideoPlayer
               handlePauseVideo={pauseVideo}
@@ -137,14 +143,24 @@ export default function Room(props: RoomProps) {
               handleVoteSkip={handleVoteSkip}
               members={members}
             />
-            <ContentTabs headers={["Queue", "Search"]}>
-              <VideoQueue queue={videoState.queue} />
-              <VideoSearch handleRequestVideo={addToQueue} />
-            </ContentTabs>
+            {isBigScreen ? (
+              <ContentTabs headers={["Queue", "Search"]}>
+                <VideoQueue queue={videoState.queue} />
+                <VideoSearch handleRequestVideo={addToQueue} />
+              </ContentTabs>
+            ) : (
+              <ContentTabs headers={["Chat", "Queue", "Search"]}>
+                <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />
+                <VideoQueue queue={videoState.queue} />
+                <VideoSearch handleRequestVideo={addToQueue} />
+              </ContentTabs>
+            )}
           </div>
-          <div id="chat-wrapper">
-            <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />
-          </div>
+          {isBigScreen ? (
+            <div id="chat-wrapper">
+              <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />
+            </div>
+          ) : null}
         </div>
       </>
     );

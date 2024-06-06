@@ -1,6 +1,7 @@
 import Home from "./Components/Home";
 import { useState } from "react";
 import Room from "./Components/Room";
+import "./styles/App.css";
 function App() {
   const [roomCode, setRoomCode] = useState<null | string>(null);
   const [userId, setUserId] = useState("");

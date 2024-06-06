@@ -3,8 +3,11 @@ import { ChatMessage } from "../types";
 import { useState, useLayoutEffect, useRef } from "react";
 import useStayScrolled from "react-stay-scrolled";
 import "../styles/Chat.css";
-import { Button, TextField } from "@mui/material";
+import { Button, IconButton, TextField, Tooltip } from "@mui/material";
 import { useBottomScrollListener } from "react-bottom-scroll-listener";
+import { useMediaQuery } from "react-responsive";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+
 interface ChatProps {
   messages: ChatMessage[];
   handleSendMessage: (message: string) => void;
@@ -13,10 +16,12 @@ interface ChatProps {
 
 export default function Chat(props: ChatProps) {
   const [chatInput, setChatInput] = useState("");
+  const [toolTipText, setToolTipText] = useState("Copy to clipboard");
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   const messagesRef: RefObject<HTMLDivElement> = useRef(null);
   const { stayScrolled, scrollBottom } = useStayScrolled(messagesRef);
   const scrollRef: LegacyRef<HTMLDivElement> = useBottomScrollListener(() => setIsScrolledToBottom(true));
+  const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   useLayoutEffect(() => {
     if (!isScrolledToBottom) {
@@ -52,14 +57,38 @@ export default function Chat(props: ChatProps) {
     }
   };
 
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(props.roomCode);
+    setToolTipText("Copied ✅");
+  };
+
+  const resetTooltip = () => {
+    setTimeout(() => {
+      setToolTipText("Copy to clipboard");
+    }, 200);
+  };
+
   return (
     <>
-      <div id="chat-container">
+      <div id={isBigScreen ? "chat-container" : ""}>
         <div id="chat-header">
-          <p>Chat</p>
+          {isBigScreen ? (
+            <p>Chat</p>
+          ) : (
+            <p>
+              Lounge: {props.roomCode}{" "}
+              <span onMouseLeave={resetTooltip}>
+                <Tooltip title={toolTipText} arrow color="success">
+                  <IconButton color="secondary" id="copy-button" size="large" onClick={handleCopyClick}>
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </span>
+            </p>
+          )}
         </div>
         <div ref={scrollRef}>
-          <div id="messages-container" ref={messagesRef}>
+          <div className="scroll-bar" id={isBigScreen ? "messages-container" : "messages-container-small"} ref={messagesRef}>
             {props.messages.map((message, index) => (
               <React.Fragment key={index}>
                 {message.user.id === "system" ? (

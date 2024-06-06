@@ -14,3 +14,8 @@
   margin-top: 25px;
   opacity: 0.5;
 }
+
+.video-queue-small {
+  max-height: 59vh;
+  overflow-y: scroll;
+}

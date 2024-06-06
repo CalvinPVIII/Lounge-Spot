@@ -4,6 +4,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import FlaskApiHelper from "../helpers/flaskApiHelper";
 import { QueueVideoInfo, VideoInfo } from "../types";
 import ReactPlayer from "react-player";
+import { useMediaQuery } from "react-responsive";
 
 interface VideoSearchProps {
   handleRequestVideo: (video: QueueVideoInfo) => void;
@@ -17,6 +18,8 @@ export default function VideoSearch(props: VideoSearchProps) {
 
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+
+  const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const handleOpenSuccessSnackbar = () => {
     setSuccessSnackbarOpen(true);
@@ -84,7 +87,7 @@ export default function VideoSearch(props: VideoSearchProps) {
 
   return (
     <>
-      <form onSubmit={searchForVideos} id="search-input">
+      <form onSubmit={searchForVideos} id={isBigScreen ? "search-input" : "search-input-small"}>
         <TextField
           placeholder="paste url or search"
           value={searchInput}
@@ -95,7 +98,7 @@ export default function VideoSearch(props: VideoSearchProps) {
         />
         <Button type="submit">{buttonText}</Button>
       </form>
-      <div id="search-results">
+      <div id="search-results" className={isBigScreen ? "" : "search-results-small scroll-bar"}>
         {searching ? (
           <CircularProgress />
         ) : (

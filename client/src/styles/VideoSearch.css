@@ -12,11 +12,25 @@
   width: 300px;
 }
 
+#search-input-small {
+  padding-left: 10px;
+}
+
+#search-input-small input {
+  width: 300px;
+}
+
 #search-results {
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 10px;
+}
+
+.search-results-small {
+  max-height: 50vh;
+  overflow-y: scroll;
+  padding-left: 10px;
 }
 
 .video-info-img {

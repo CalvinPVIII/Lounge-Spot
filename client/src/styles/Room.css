@@ -3,6 +3,10 @@
   padding: 20px;
 }
 
+#room-wrapper-small {
+  display: flex;
+}
+
 #video-player-wrapper {
   flex-grow: 1;
 }

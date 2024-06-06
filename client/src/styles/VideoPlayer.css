@@ -4,6 +4,12 @@
   background-color: black;
 }
 
+#player-wrapper-small {
+  position: relative;
+  height: 30vh;
+  background-color: black;
+}
+
 #player-controls-wrapper {
   display: flex;
   background-color: #252525;
