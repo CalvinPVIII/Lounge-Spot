@@ -10,7 +10,7 @@ from youtubesearchpython import VideosSearch, Video, ResultMode
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super secret key!!!"
 CORS(app, origins="*")
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 rooms = {}
 

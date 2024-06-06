@@ -4,3 +4,4 @@ flask_cors
 youtube-search
 youtube-search-python
 Gunicorn
+eventlet
