@@ -72,6 +72,10 @@
 #lounge-code {
   line-height: 1px;
   outline: 1px solid #484848;
+  background-color: #0d0d12;
+  position: absolute;
+  width: 100vw;
+  z-index: 999999;
 }
 
 .chat-input-container-small {
