@@ -77,11 +77,11 @@ export default function Chat(props: ChatProps) {
   return (
     <>
       <div id={isBigScreen ? "chat-container" : "chat-container-small"}>
-        <div id="chat-header">
+        <div id={isBigScreen ? "chat-header" : "chat-header-small"}>
           {isBigScreen ? (
             <p>Chat</p>
           ) : (
-            <p>
+            <p id="lounge-code">
               Lounge: {props.roomCode}{" "}
               <span onMouseLeave={resetTooltip}>
                 <Tooltip title={toolTipText} arrow color="success">

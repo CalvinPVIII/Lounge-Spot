@@ -65,10 +65,18 @@
   border-top: 1px solid #484848;
 }
 
+#chat-header-small {
+  text-align: center;
+}
+
+#lounge-code {
+  line-height: 1px;
+  outline: 1px solid #484848;
+}
+
 .chat-input-container-small {
   position: absolute;
   bottom: 0;
   width: 100vw;
-  /* margin-top: -40px; */
   z-index: 100;
 }
