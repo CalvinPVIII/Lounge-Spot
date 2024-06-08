@@ -1,5 +1,5 @@
 import { Tab, Tabs } from "@mui/material";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import "../styles/ContentTabs.css";
 import { useMediaQuery } from "react-responsive";
 
@@ -15,6 +15,10 @@ const ContentTabs: React.FC<ContentTabsProps> = ({ children, headers }) => {
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
+
+  useEffect(() => {
+    children.length < parseInt(value) ? setValue("1") : null;
+  }, [children]);
 
   return (
     <div className={isBigScreen ? "" : "content-tabs-wrapper-small"}>

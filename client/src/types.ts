@@ -108,3 +108,45 @@ export interface QueueVideoInfo {
   thumbnail?: string;
   id?: string;
 }
+
+export interface MovieInfo {
+  backdrop_path: string;
+  id: number;
+  original_title: string;
+  overview: string;
+  poster_path: string;
+  media_type: string;
+  adult: boolean;
+  title: string;
+  original_language: string;
+  genre_ids: number[];
+  popularity: number;
+  release_date?: string;
+  video: boolean;
+  vote_average: number;
+  vote_count: number;
+}
+export interface TvInfo {
+  adult: boolean;
+  backdrop_path: string;
+  first_air_date: string;
+  genre_ids: number[];
+  id: number;
+  media_type: string;
+  name: string;
+  origin_country: string[];
+  original_language: string;
+  original_name: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  vote_average: number;
+  vote_count: number;
+}
+
+export interface MovieSearchResults {
+  page: number;
+  results: MovieInfo[];
+  total_pages: number;
+  total_results: number;
+}

@@ -87,7 +87,7 @@ export default function VideoSearch(props: VideoSearchProps) {
 
   return (
     <>
-      <form onSubmit={searchForVideos} id={isBigScreen ? "search-input" : "search-input-small"}>
+      <form onSubmit={searchForVideos} className={isBigScreen ? "search-input" : "search-input-small"}>
         <TextField
           placeholder="paste url or search"
           value={searchInput}

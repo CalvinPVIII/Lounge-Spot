@@ -1,0 +1,32 @@
+.movie-search-results {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 10px;
+}
+
+.movie-search-results-small {
+  max-height: 50vh;
+  overflow-y: scroll;
+  padding-left: 30px;
+}
+.movie-result-img {
+  width: 250px;
+}
+.search-result {
+  position: relative;
+}
+
+.movie-info {
+  position: absolute;
+  z-index: 2;
+  text-align: center;
+  width: 250px;
+  transform: translateY(-100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.1));
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+
+  font-size: large;
+  overflow-wrap: break-word;
+  line-height: 20px;
+}

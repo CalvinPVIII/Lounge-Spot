@@ -1,22 +1,22 @@
-#search-input {
+.search-input {
   display: flex;
   align-items: center;
   padding-top: 10px;
 }
 
-#search-input button {
+.search-input button {
   margin-bottom: -25px;
 }
 
-#search-input input {
+.search-input input {
   width: 300px;
 }
 
-#search-input-small {
+.search-input-small {
   padding-left: 10px;
 }
 
-#search-input-small input {
+.search-input-small input {
   width: 300px;
 }
 

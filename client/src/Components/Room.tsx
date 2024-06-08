@@ -10,6 +10,7 @@ import ContentTabs from "./ContentTabs";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Tooltip, IconButton } from "@mui/material";
 import { useMediaQuery } from "react-responsive";
+// import MoviesSearch from "./MoviesSearch";
 
 interface RoomProps {
   roomCode: string;
@@ -147,12 +148,14 @@ export default function Room(props: RoomProps) {
               <ContentTabs headers={["Queue", "Search"]}>
                 <VideoQueue queue={videoState.queue} />
                 <VideoSearch handleRequestVideo={addToQueue} />
+                {/* <MoviesSearch /> */}
               </ContentTabs>
             ) : (
               <ContentTabs headers={["Chat", "Queue", "Search"]}>
                 <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />
                 <VideoQueue queue={videoState.queue} />
                 <VideoSearch handleRequestVideo={addToQueue} />
+                {/* <MoviesSearch /> */}
               </ContentTabs>
             )}
           </div>
