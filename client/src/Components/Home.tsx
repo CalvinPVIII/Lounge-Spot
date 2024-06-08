@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FlaskApiHelper from "../helpers/flaskApiHelper";
 import "../styles/Home.css";
 import { Box, Button, TextField } from "@mui/material";
@@ -11,14 +11,28 @@ export default function Home(props: HomeProps) {
   const [name, setName] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
+  const [joinFromUrl, setJoinFromUrl] = useState(false);
 
   const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
 
   const handleChangeRoomCode = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRoomCode(e.target.value);
+    setRoomCode(e.target.value.toUpperCase());
   };
+
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    const joinRegex = /^\/join\/(.+)/;
+    const match = currentPath.match(joinRegex);
+
+    if (match) {
+      const code = match[1];
+      console.log("Code:", code);
+      setJoinFromUrl(true);
+      setRoomCode(code.toUpperCase());
+    }
+  }, []);
 
   const handleCreateRoom = async () => {
     if (name === "") {
@@ -45,6 +59,8 @@ export default function Home(props: HomeProps) {
     const joinRoomResponse = await FlaskApiHelper.joinRoom(name, code.toUpperCase());
     if (joinRoomResponse.status === "success") {
       props.handleJoinRoom(code, joinRoomResponse.data.userId, name);
+    } else {
+      setError(joinRoomResponse.message);
     }
   };
 
@@ -57,25 +73,36 @@ export default function Home(props: HomeProps) {
           <TextField label="name" value={name} onChange={handleChangeName} variant="standard" />
         </div>
       </div>
-      <div id="home-main-buttons">
-        <div id="home-create">
-          <div>
-            <Button onClick={handleCreateRoom} variant="outlined" size="small" className="home-button" sx={{ borderRadius: 28 }}>
-              Create Room
-            </Button>
+      {joinFromUrl ? (
+        <Box textAlign="center">
+          <p>Room: {roomCode}</p>
+          <Button variant="outlined" onClick={() => handleJoinRoom()} size="small" className="home-button" sx={{ borderRadius: 28 }}>
+            Join Room
+          </Button>
+        </Box>
+      ) : (
+        <>
+          <div id="home-main-buttons">
+            <div id="home-create">
+              <div>
+                <Button onClick={handleCreateRoom} variant="outlined" size="small" className="home-button" sx={{ borderRadius: 28 }}>
+                  Create Room
+                </Button>
+              </div>
+            </div>
+            <div id="home-spacer"></div>
+            <div id="home-join">
+              <TextField label="room code" value={roomCode} onChange={handleChangeRoomCode} size="small" variant="standard" />
+              <Box textAlign="center" marginTop={"15px"}>
+                <Button variant="outlined" onClick={() => handleJoinRoom()} size="small" className="home-button" sx={{ borderRadius: 28 }}>
+                  Join Room
+                </Button>
+              </Box>
+            </div>
+            <br />
           </div>
-        </div>
-        <div id="home-spacer"></div>
-        <div id="home-join">
-          <TextField label="room code" value={roomCode} onChange={handleChangeRoomCode} size="small" variant="standard" />
-          <Box textAlign="center" marginTop={"15px"}>
-            <Button variant="outlined" onClick={() => handleJoinRoom()} size="small" className="home-button" sx={{ borderRadius: 28 }}>
-              Join Room
-            </Button>
-          </Box>
-        </div>
-        <br />
-      </div>
+        </>
+      )}
     </>
   );
 }

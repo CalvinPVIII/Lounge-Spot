@@ -57,7 +57,7 @@ export default function Chat(props: ChatProps) {
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(props.roomCode);
+    navigator.clipboard.writeText(`https://loungespot.netlify.app/join/${props.roomCode}`);
     setToolTipText("Copied ✅");
   };
 

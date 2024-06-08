@@ -45,3 +45,8 @@
 .home-button {
   width: 150px;
 }
+
+.error {
+  text-align: center;
+  color: red;
+}
