@@ -9,6 +9,9 @@
   height: 30vh;
   background-color: black;
 }
+#loading-circle {
+  position: absolute;
+}
 
 #player-controls-wrapper {
   display: flex;

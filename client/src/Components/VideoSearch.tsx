@@ -38,7 +38,7 @@ export default function VideoSearch(props: VideoSearchProps) {
   };
 
   const handleAddVideoToQueue = (video: VideoInfo | string) => {
-    const videoToAdd: QueueVideoInfo = { url: "" };
+    const videoToAdd: QueueVideoInfo = { url: "", type: "YouTube" };
     if (typeof video === "string") {
       videoToAdd.url = video;
     } else {

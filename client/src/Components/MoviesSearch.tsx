@@ -2,10 +2,14 @@ import { TextField, Button, CircularProgress, Pagination } from "@mui/material";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import MovieHelper from "../helpers/MovieHelper";
-import { MovieInfo } from "../types";
+import { MovieInfo, QueueVideoInfo } from "../types";
 import "../styles/MoviesSearch.css";
 
-export default function MoviesSearch() {
+interface MovieSearchProps {
+  handleRequestMovie: (movie: QueueVideoInfo) => void;
+}
+
+export default function MoviesSearch(props: MovieSearchProps) {
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const [searchInput, setSearchInput] = useState("");
@@ -45,6 +49,19 @@ export default function MoviesSearch() {
     }
   };
 
+  const handleMovieClick = (movie: MovieInfo) => {
+    console.log("adding movie");
+    const queueEntry: QueueVideoInfo = {
+      title: movie.title,
+      thumbnail: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
+      url: movie.id.toString(),
+      type: "Movie",
+      channel: movie.media_type,
+    };
+
+    props.handleRequestMovie(queueEntry);
+  };
+
   return (
     <>
       <form onSubmit={handleFormSubmit} className={isBigScreen ? "search-input" : "search-input-small"}>
@@ -63,7 +80,7 @@ export default function MoviesSearch() {
       ) : (
         <div className={isBigScreen ? "movie-search-results" : "movie-search-results-small"}>
           {searchResults.map((result) => (
-            <div key={result.id} className={"search-result"}>
+            <div key={result.id} className={"search-result"} onClick={() => handleMovieClick(result)}>
               <img className="movie-result-img" src={`https://image.tmdb.org/t/p/original/${result.poster_path}`} />
               <div className="movie-info">
                 <p>{result.title}</p>

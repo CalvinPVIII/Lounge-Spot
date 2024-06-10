@@ -10,7 +10,7 @@ import ContentTabs from "./ContentTabs";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Tooltip, IconButton } from "@mui/material";
 import { useMediaQuery } from "react-responsive";
-// import MoviesSearch from "./MoviesSearch";
+import MoviesSearch from "./MoviesSearch";
 
 interface RoomProps {
   roomCode: string;
@@ -35,6 +35,7 @@ export default function Room(props: RoomProps) {
     queue: [],
     currentVideoId: "",
     skipVotes: [],
+    loading: false,
   });
 
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
@@ -145,17 +146,17 @@ export default function Room(props: RoomProps) {
               members={members}
             />
             {isBigScreen ? (
-              <ContentTabs headers={["Queue", "Search"]}>
+              <ContentTabs headers={["Queue", "Search", "Movies/TV"]}>
                 <VideoQueue queue={videoState.queue} />
                 <VideoSearch handleRequestVideo={addToQueue} />
-                {/* <MoviesSearch /> */}
+                <MoviesSearch handleRequestMovie={addToQueue} />
               </ContentTabs>
             ) : (
-              <ContentTabs headers={["Chat", "Queue", "Search"]}>
+              <ContentTabs headers={["Chat", "Queue", "Search", "Movies/TV"]}>
                 <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />
                 <VideoQueue queue={videoState.queue} />
                 <VideoSearch handleRequestVideo={addToQueue} />
-                {/* <MoviesSearch /> */}
+                <MoviesSearch handleRequestMovie={addToQueue} />
               </ContentTabs>
             )}
           </div>

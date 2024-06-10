@@ -6,6 +6,13 @@ from string import ascii_uppercase
 import uuid
 import time
 from youtubesearchpython import VideosSearch, Video, ResultMode
+from seleniumwire import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options
+
+import time
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super secret key!!!"
@@ -46,7 +53,7 @@ def search():
 def create_room():
     if(request.method == "POST"):
         room_code = generate_unique_code(4)
-        rooms[room_code] = {"members": {}, "messages": [], "videoInfo": {"url": "","queue": [], "playing": False, "currentVideoId": "", "currentTime":0, "maxTime":0, "startTimeStamp": 0, "pauseTimeStamp": 0, "playPauseOffset": 0, "skipVotes": []}}
+        rooms[room_code] = {"members": {}, "messages": [], "videoInfo": {"url": "","queue": [], "playing": False, "loading": False, "currentVideoId": "", "currentTime":0, "maxTime":0, "startTimeStamp": 0, "pauseTimeStamp": 0, "playPauseOffset": 0, "skipVotes": []}}
         print("room created: " + room_code)
         response = jsonify({"status": "success", "message": "Room created", "data": {"roomCode": room_code}})
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -58,7 +65,7 @@ def connect_to_room():
         data = request.json
         room_code = data['roomCode']
         user_name = data['userName']
-        user_id = uuid.uuid4();
+        user_id = uuid.uuid4()
         if not room_code or room_code not in rooms:
             return jsonify({"status": "error", "message":"Room does not exist"})
         elif not user_name:
@@ -157,35 +164,46 @@ def stop_video():
 def add_to_queue(data):
     room = request.headers.get("Room-Code").upper()
     user_id = request.headers.get("User-Id") 
-    url = data['video']['url']
+    url = data.get('video', {}).get('url')
     if not room in rooms or not room or not user_id or not url:
         return 
 
 
-    title = data.get('title')
-    channel = data.get('channel')
-    thumbnail = data.get('thumbnail')
+    title = data.get('video', {}).get('title')
+    channel = data.get('video', {}).get('channel')
+    thumbnail = data.get('video', {}).get('thumbnail')
 
-
-    if not (title and channel and thumbnail):
-        video = Video.getInfo(url, mode=ResultMode.json)
-        title = video['title']
-        channel = video["channel"]['name']
-        thumbnail = video["thumbnails"][0]['url']
+    videoType = data.get('video', {}).get('type')
+    if videoType == "YouTube":
+        if not (title and channel and thumbnail):
+            video = Video.getInfo(url, mode=ResultMode.json)
+            title = video['title']
+            channel = video["channel"]['name']
+            thumbnail = video["thumbnails"][0]['url']
 
     videoInfo = {"title": title, "channel": channel, "thumbnail": thumbnail, "url": url, "id": str(uuid.uuid4())}
 
     room_video_info = rooms[room]['videoInfo']
     room_video_info['queue'].append(videoInfo)
     if(room_video_info['url'] == ""):
-        room_video_info['url'] = url
+        print(data)
+        if videoType == "Movie":
+            room_video_info['loading'] = True;
+            socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
+            file = get_movie_file(url)
+            room_video_info['url'] = file
+        elif videoType == "YouTube":
+            room_video_info['url'] = url
+            
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
         room_video_info['startTimeStamp'] = time.time()
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes'] = []
-        socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
+        room_video_info['loading'] = False;
+
+        
     socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
 
 
@@ -202,24 +220,7 @@ def end_video(data):
     if room_video_info['currentVideoId'] != video_id:
         return
     
-    if(len(room_video_info['queue']) == 1):
-        room_video_info['url'] = ""
-        room_video_info['queue'].pop(0)
-        room_video_info['currentVideoId'] = ""
-        room_video_info['playing'] = False
-        room_video_info['pauseTimeStamp'] = 0
-        room_video_info['startTimeStamp'] = 0
-        room_video_info['playPauseOffset'] = 0
-        room_video_info['skipVotes']= []
-    else:
-        room_video_info['queue'].pop(0)
-        room_video_info['url'] = room_video_info['queue'][0]['url']
-        room_video_info['currentVideoId'] = str(uuid.uuid4())
-        room_video_info['playing'] = True
-        room_video_info['pauseTimeStamp'] = 0
-        room_video_info['startTimeStamp'] = time.time()
-        room_video_info['playPauseOffset'] = 0
-        room_video_info['skipVotes']= []
+    handle_move_to_next_video(room_video_info)
     socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
     print(room_video_info)
 
@@ -266,6 +267,36 @@ def handle_move_to_next_video(room_video_info):
     
 
 
+
+
+def get_movie_file(id):
+    print("getting file")
+    options = Options()
+    options.headless = True
+    driver = webdriver.Firefox(options=options)
+    driver.install_addon('./ublock.xpi')
+    driver.get(f'https://vidsrc.xyz/embed/{id}')
+    try:
+        WebDriverWait(driver, 10).until( EC.frame_to_be_available_and_switch_to_it((By.XPATH, '//*[@id="player_iframe"]')))
+        element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "pl_but")))
+        if element:
+            element.click()
+            time.sleep(7)
+            file = ""
+            for request in driver.requests:
+                if request.response:
+                    if "tmstr.vidsrc.stream/stream" in request.url:
+                        file = request.url
+                        break
+            driver.quit()
+            return file
+        else:
+            driver.quit()
+            print("error")
+    except:
+        driver.quit()
+        print("error")
+    driver.quit()
 
 
 

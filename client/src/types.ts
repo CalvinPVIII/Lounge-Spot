@@ -46,6 +46,7 @@ export interface VideoPlayerState {
   queue: QueueVideoInfo[];
   currentVideoId: string;
   skipVotes: string[];
+  loading: boolean;
 }
 
 type Thumbnail = {
@@ -107,6 +108,7 @@ export interface QueueVideoInfo {
   url?: string;
   thumbnail?: string;
   id?: string;
+  type?: "Movie" | "YouTube";
 }
 
 export interface MovieInfo {

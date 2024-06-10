@@ -1,4 +1,4 @@
-import { Button, IconButton, Slider } from "@mui/material";
+import { Button, CircularProgress, IconButton, Slider } from "@mui/material";
 import { QueueVideoInfo, UserInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
@@ -49,19 +49,23 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     setPlayerMuted(!muted);
   };
 
+  console.log(props.videoState.loading);
+  const handleError = () => {};
+
   return (
     <>
       <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
         <ReactPlayer
           className="react-player"
           ref={player}
-          url={props.videoState.url}
+          url={`${props.videoState.url.replace("master", "index-3")}`}
           playing={props.videoState.playing}
           allow="encrypted-media"
           onPlay={props.handlePlayVideo}
           onPause={props.handlePauseVideo}
           onStart={syncPlayer}
           onEnded={props.onVideoEnd}
+          onError={handleError}
           width="100%"
           height="100%"
           volume={playerVolume / 100}
@@ -72,6 +76,11 @@ export default function VideoPlayer(props: VideoPlayerProps) {
             },
           }}
         />
+        {props.videoState.loading ? (
+          <div id="loading-circle">
+            <CircularProgress />
+          </div>
+        ) : null}
       </div>
 
       <div id={isBigScreen ? "player-controls-wrapper" : "player-controls-wrapper-small"}>
