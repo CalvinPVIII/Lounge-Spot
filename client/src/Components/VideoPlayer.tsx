@@ -49,7 +49,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     setPlayerMuted(!muted);
   };
 
-  console.log(props.videoState.loading);
+  console.log(props.videoState);
   const handleError = () => {};
 
   return (

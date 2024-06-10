@@ -181,17 +181,14 @@ def add_to_queue(data):
             channel = video["channel"]['name']
             thumbnail = video["thumbnails"][0]['url']
 
-    videoInfo = {"title": title, "channel": channel, "thumbnail": thumbnail, "url": url, "id": str(uuid.uuid4())}
+    videoInfo = {"title": title, "channel": channel, "thumbnail": thumbnail, "url": url, "id": str(uuid.uuid4()), "type": videoType}
 
     room_video_info = rooms[room]['videoInfo']
     room_video_info['queue'].append(videoInfo)
     if(room_video_info['url'] == ""):
         print(data)
         if videoType == "Movie":
-            room_video_info['loading'] = True;
-            socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
-            file = get_movie_file(url)
-            room_video_info['url'] = file
+           initialize_movie(url, room_video_info, room)
         elif videoType == "YouTube":
             room_video_info['url'] = url
             
@@ -220,7 +217,7 @@ def end_video(data):
     if room_video_info['currentVideoId'] != video_id:
         return
     
-    handle_move_to_next_video(room_video_info)
+    handle_move_to_next_video(room_video_info, room)
     socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
     print(room_video_info)
 
@@ -237,14 +234,14 @@ def vote_skip():
         return
     room_video_info['skipVotes'].append(user_id)
     if len(room_video_info['skipVotes']) >= len(rooms[room]['members'])/2:
-        handle_move_to_next_video(room_video_info)
+        handle_move_to_next_video(room_video_info, room)
 
     socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
 
 
 
 
-def handle_move_to_next_video(room_video_info):
+def handle_move_to_next_video(room_video_info, roomCode):
     if(len(room_video_info['queue']) == 1):
         room_video_info['url'] = ""
         room_video_info['queue'].pop(0)
@@ -254,15 +251,21 @@ def handle_move_to_next_video(room_video_info):
         room_video_info['startTimeStamp'] = 0
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes']= []
+        room_video_info['loading'] = False
     else:
         room_video_info['queue'].pop(0)
-        room_video_info['url'] = room_video_info['queue'][0]['url']
+        print(room_video_info['queue'])
+        if room_video_info['queue'][0]['type'] == "Movie":
+            initialize_movie(room_video_info['queue'][0]['url'], room_video_info, roomCode)
+        else:
+            room_video_info['url'] = room_video_info['queue'][0]['url']
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
         room_video_info['startTimeStamp'] = time.time()
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes']= []
+        room_video_info['loading'] = False
         
     
 
@@ -297,6 +300,16 @@ def get_movie_file(id):
         driver.quit()
         print("error")
     driver.quit()
+
+
+def initialize_movie(tmdbId, room_video_info, roomCode):
+    room_video_info['loading'] = True;
+    socketio.emit("updateVideoInfo", rooms[roomCode]['videoInfo'], to=roomCode) 
+    print("loading movie")
+    file = get_movie_file(tmdbId)
+    room_video_info['url'] = file
+
+
 
 
 
