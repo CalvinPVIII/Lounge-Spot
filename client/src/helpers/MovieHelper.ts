@@ -1,4 +1,4 @@
-import { MovieFileResponse, MovieInfo, MovieSearchResults, TvInfo } from "../types";
+import { MovieFileResponse, MovieInfo, MovieSearchResults, TvInfo, TvSeriesDetails } from "../types";
 
 export default class MovieHelper {
   static async getPopularMovies() {
@@ -50,5 +50,20 @@ export default class MovieHelper {
     } else {
       return `${import.meta.env.VITE_PROXY_URL}${result.source}`;
     }
+  }
+
+  static async getTvDetails(id: string) {
+    const url = `https://api.themoviedb.org/3/tv/${id}?language=en-US`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
+      },
+    };
+
+    const response = await fetch(url, options);
+    const result = (await response.json()) as TvSeriesDetails;
+    return result;
   }
 }

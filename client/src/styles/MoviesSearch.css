@@ -17,6 +17,12 @@
   position: relative;
 }
 
+.result-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .movie-info {
   position: absolute;
   z-index: 2;
@@ -29,4 +35,31 @@
   font-size: large;
   overflow-wrap: break-word;
   line-height: 20px;
+}
+
+#tv-series-info {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.785);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+}
+
+#movie-search-wrapper {
+  position: relative;
+}
+
+#loading-wrapper {
+  border: 1px sold orange;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.895);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
 }

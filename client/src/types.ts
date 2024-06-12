@@ -157,3 +157,20 @@ export interface MovieFileResponse {
   source: string;
   referer?: string;
 }
+
+interface SeasonInfo {
+  air_date: string;
+  episode_count: number;
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  season_number: number;
+  vote_average: number;
+}
+export interface TvSeriesDetails {
+  seasons: SeasonInfo[];
+  id: number;
+  original_name: string;
+  poster_path: string;
+}

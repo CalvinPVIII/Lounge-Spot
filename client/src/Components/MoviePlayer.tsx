@@ -18,6 +18,10 @@ export default function MoviePlayer(props: MoviePlayerProps) {
     setTimeout(() => {
       if (!playerRef) return;
       syncPlayer();
+      if (props.videoState.playing) {
+        //@ts-expect-error used as per example in docs
+        playerRef.current.play();
+      }
     }, 1000);
   }, [props.videoState.url]);
 
