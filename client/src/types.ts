@@ -152,3 +152,8 @@ export interface MovieSearchResults {
   total_pages: number;
   total_results: number;
 }
+
+export interface MovieFileResponse {
+  source: string;
+  referer?: string;
+}

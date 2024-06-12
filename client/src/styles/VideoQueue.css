@@ -19,3 +19,15 @@
   max-height: 59vh;
   overflow-y: scroll;
 }
+
+.video-queue-right img {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.video-queue-left {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: center;
+}

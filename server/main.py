@@ -11,7 +11,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.options import Options
-
+import asyncio
+from playwright.async_api import async_playwright
+import requests
 import time
 
 app = Flask(__name__)
@@ -46,9 +48,8 @@ def search():
         search = VideosSearch(query)
         results = search.result()
         return jsonify({"status": "success", "message":"Results", "data": results['result']})
-
-
-
+    
+    
 @app.route("/room/create", methods=["POST"])
 def create_room():
     if(request.method == "POST"):
@@ -183,15 +184,12 @@ def add_to_queue(data):
 
     videoInfo = {"title": title, "channel": channel, "thumbnail": thumbnail, "url": url, "id": str(uuid.uuid4()), "type": videoType}
 
+    print(videoInfo)
+
     room_video_info = rooms[room]['videoInfo']
     room_video_info['queue'].append(videoInfo)
     if(room_video_info['url'] == ""):
-        print(data)
-        if videoType == "Movie":
-           initialize_movie(url, room_video_info, room)
-        elif videoType == "YouTube":
-            room_video_info['url'] = url
-            
+        room_video_info['url'] = url
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
@@ -199,8 +197,6 @@ def add_to_queue(data):
         room_video_info['playPauseOffset'] = 0
         room_video_info['skipVotes'] = []
         room_video_info['loading'] = False;
-
-        
     socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
 
 
@@ -254,11 +250,7 @@ def handle_move_to_next_video(room_video_info, roomCode):
         room_video_info['loading'] = False
     else:
         room_video_info['queue'].pop(0)
-        print(room_video_info['queue'])
-        if room_video_info['queue'][0]['type'] == "Movie":
-            initialize_movie(room_video_info['queue'][0]['url'], room_video_info, roomCode)
-        else:
-            room_video_info['url'] = room_video_info['queue'][0]['url']
+        room_video_info['url'] = room_video_info['queue'][0]['url']
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
@@ -267,51 +259,6 @@ def handle_move_to_next_video(room_video_info, roomCode):
         room_video_info['skipVotes']= []
         room_video_info['loading'] = False
         
-    
-
-
-
-
-def get_movie_file(id):
-    print("getting file")
-    options = Options()
-    options.headless = True
-    driver = webdriver.Firefox(options=options)
-    driver.install_addon('./ublock.xpi')
-    driver.get(f'https://vidsrc.xyz/embed/{id}')
-    try:
-        WebDriverWait(driver, 10).until( EC.frame_to_be_available_and_switch_to_it((By.XPATH, '//*[@id="player_iframe"]')))
-        element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "pl_but")))
-        if element:
-            element.click()
-            time.sleep(7)
-            file = ""
-            for request in driver.requests:
-                if request.response:
-                    if "tmstr.vidsrc.stream/stream" in request.url:
-                        file = request.url
-                        break
-            driver.quit()
-            return file
-        else:
-            driver.quit()
-            print("error")
-    except:
-        driver.quit()
-        print("error")
-    driver.quit()
-
-
-def initialize_movie(tmdbId, room_video_info, roomCode):
-    room_video_info['loading'] = True;
-    socketio.emit("updateVideoInfo", rooms[roomCode]['videoInfo'], to=roomCode) 
-    print("loading movie")
-    file = get_movie_file(tmdbId)
-    room_video_info['url'] = file
-
-
-
-
 
 if(__name__) == "__main__":
     socketio.run(app, debug=True)

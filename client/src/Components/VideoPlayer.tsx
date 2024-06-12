@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
 import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined, Sync } from "@mui/icons-material";
 import { useMediaQuery } from "react-responsive";
+import MoviePlayer from "./MoviePlayer";
 
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
@@ -21,6 +22,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const [playerVolume, setPlayerVolume] = useState(50);
   const [muted, setPlayerMuted] = useState(false);
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
+  const [syncMoviePlayerTrigger, setSyncMoviePlayerTrigger] = useState(0);
 
   useEffect(() => {
     setTimeout(() => {
@@ -49,33 +51,45 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     setPlayerMuted(!muted);
   };
 
-  console.log(props.videoState);
-  const handleError = () => {};
+  const syncMoviePlayer = () => {
+    setSyncMoviePlayerTrigger(syncMoviePlayerTrigger + 1);
+  };
 
   return (
     <>
       <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
-        <ReactPlayer
-          className="react-player"
-          ref={player}
-          url={`${props.videoState.url.replace("master", "index-3")}`}
-          playing={props.videoState.playing}
-          allow="encrypted-media"
-          onPlay={props.handlePlayVideo}
-          onPause={props.handlePauseVideo}
-          onStart={syncPlayer}
-          onEnded={props.onVideoEnd}
-          onError={handleError}
-          width="100%"
-          height="100%"
-          volume={playerVolume / 100}
-          muted={muted}
-          config={{
-            youtube: {
-              playerVars: { showinfo: 0 },
-            },
-          }}
-        />
+        {props.videoState.queue[0] && props.videoState.queue[0].type === "Movie" ? (
+          <MoviePlayer
+            syncMoviePlayerTrigger={syncMoviePlayerTrigger}
+            videoState={props.videoState}
+            handlePauseVideo={props.handlePauseVideo}
+            handlePlayVideo={props.handlePlayVideo}
+            onVideoEnd={props.onVideoEnd}
+            muted={muted}
+            volume={playerVolume}
+          />
+        ) : (
+          <ReactPlayer
+            className="react-player"
+            ref={player}
+            url={props.videoState.url}
+            playing={props.videoState.playing}
+            allow="encrypted-media"
+            onPlay={props.handlePlayVideo}
+            onPause={props.handlePauseVideo}
+            onStart={syncPlayer}
+            onEnded={props.onVideoEnd}
+            width="100%"
+            height="100%"
+            volume={playerVolume / 100}
+            muted={muted}
+            config={{
+              youtube: {
+                playerVars: { showinfo: 0 },
+              },
+            }}
+          />
+        )}
         {props.videoState.loading ? (
           <div id="loading-circle">
             <CircularProgress />
@@ -116,7 +130,10 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           </p>
         </div>
         <div id="sync-spacer"></div>
-        <IconButton onClick={syncPlayer} disabled={props.videoState.url === "" ? true : false}>
+        <IconButton
+          onClick={props.videoState.queue[0] && props.videoState.queue[0].type === "Movie" ? syncMoviePlayer : syncPlayer}
+          disabled={props.videoState.url === "" ? true : false}
+        >
           <Sync />
         </IconButton>
       </div>

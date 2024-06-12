@@ -1,4 +1,4 @@
-Flask
+Flask[async]
 flask-socketio
 flask_cors
 youtube-search
@@ -8,3 +8,4 @@ eventlet
 selenium
 selenium-wire
 blinker==1.7.0
+playwright

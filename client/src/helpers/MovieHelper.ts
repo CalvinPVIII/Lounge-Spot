@@ -1,4 +1,4 @@
-import { MovieInfo, MovieSearchResults, TvInfo } from "../types";
+import { MovieFileResponse, MovieInfo, MovieSearchResults, TvInfo } from "../types";
 
 export default class MovieHelper {
   static async getPopularMovies() {
@@ -37,5 +37,18 @@ export default class MovieHelper {
         }
       });
     return result as MovieSearchResults;
+  }
+
+  static async getMovieFile(movieId: string) {
+    const response = await fetch(`${import.meta.env.VITE_FETCH_MOVIES_API_URL}${movieId}`);
+    const result = (await response.json()) as MovieFileResponse;
+    if (!result.source) {
+      return "";
+    }
+    if (result.referer) {
+      return `${import.meta.env.VITE_PROXY_URL}${result.source}&headers={"referer":"${result.referer}"}`;
+    } else {
+      return `${import.meta.env.VITE_PROXY_URL}${result.source}`;
+    }
   }
 }

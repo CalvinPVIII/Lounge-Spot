@@ -49,16 +49,19 @@ export default function MoviesSearch(props: MovieSearchProps) {
     }
   };
 
-  const handleMovieClick = (movie: MovieInfo) => {
+  const handleMovieClick = async (movie: MovieInfo) => {
+    const url = await MovieHelper.getMovieFile(movie.id.toString());
+    if (url === "") {
+      return;
+    }
     console.log("adding movie");
     const queueEntry: QueueVideoInfo = {
       title: movie.title,
       thumbnail: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
-      url: movie.id.toString(),
+      url: url,
       type: "Movie",
       channel: movie.media_type,
     };
-
     props.handleRequestMovie(queueEntry);
   };
 
@@ -80,12 +83,16 @@ export default function MoviesSearch(props: MovieSearchProps) {
       ) : (
         <div className={isBigScreen ? "movie-search-results" : "movie-search-results-small"}>
           {searchResults.map((result) => (
-            <div key={result.id} className={"search-result"} onClick={() => handleMovieClick(result)}>
+            <div key={result.id} className={"search-result"}>
               <img className="movie-result-img" src={`https://image.tmdb.org/t/p/original/${result.poster_path}`} />
               <div className="movie-info">
                 <p>{result.title}</p>
                 <p>{result.release_date ? `(${result.release_date.slice(0, 4)})` : null}</p>
               </div>
+
+              <Button color="secondary" onClick={() => handleMovieClick(result)}>
+                Add To Queue
+              </Button>
             </div>
           ))}
         </div>
