@@ -57,26 +57,30 @@ export default function MoviesSearch(props: MovieSearchProps) {
   const handleMovieClick = async (movie: MovieInfo) => {
     setLoading(true);
 
-    const url = await MovieHelper.getMovieFile(movie.id.toString());
-    if (url === "") {
-      return;
+    try {
+      const url = await MovieHelper.getMovieFile(movie.id.toString());
+      console.log(url);
+      if (url === "") {
+        setLoading(false);
+        return;
+      }
+      console.log("adding movie");
+      const queueEntry: QueueVideoInfo = {
+        title: movie.title,
+        thumbnail: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
+        url: url,
+        type: "Movie",
+        channel: movie.media_type,
+      };
+      props.handleRequestMovie(queueEntry);
+      setLoading(false);
+    } catch {
+      setLoading(false);
     }
-    console.log("adding movie");
-    const queueEntry: QueueVideoInfo = {
-      title: movie.title,
-      thumbnail: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
-      url: url,
-      type: "Movie",
-      channel: movie.media_type,
-    };
-    props.handleRequestMovie(queueEntry);
-    setLoading(false);
   };
 
   const handleTvClick = async (series: MovieInfo) => {
-    console.log(series);
     const result = await MovieHelper.getTvDetails(series.id.toString());
-    console.log(result);
     setSeriesDetails(result);
   };
 
@@ -106,28 +110,32 @@ export default function MoviesSearch(props: MovieSearchProps) {
   return (
     <div id="movie-search-wrapper">
       {loading ? (
-        <div id="loading-wrapper">
-          <CircularProgress style={{ position: "sticky" }} />
+        <div id="loading">
+          <div id="progress-wrapper">
+            <CircularProgress size={"8rem"} />
+          </div>
         </div>
       ) : null}
 
       {seriesDetails ? (
-        <div id="tv-series-info">
-          <IconButton>
-            <CloseIcon onClick={handleSeriesInfoClose} />
-          </IconButton>
-          {seriesDetails.seasons.map((season) => (
-            <div className="season-card">
-              <h2>{season.name}</h2>
-              <div className="episodes">
-                {Array.from({ length: season.episode_count }, (_, i) => (
-                  <Button key={i + 1} variant="outlined" onClick={() => handleSelectEpisode(season.season_number, i + 1)}>
-                    Episode {i + 1}
-                  </Button>
-                ))}
+        <div id="series-info-wrapper">
+          <div id="tv-series-info">
+            <IconButton onClick={handleSeriesInfoClose}>
+              <CloseIcon />
+            </IconButton>
+            {seriesDetails.seasons.map((season) => (
+              <div className="season-card" key={season.id}>
+                <h2>{season.name}</h2>
+                <div className="episodes">
+                  {Array.from({ length: season.episode_count }, (_, i) => (
+                    <Button key={i + 1} variant="outlined" onClick={() => handleSelectEpisode(season.season_number, i + 1)}>
+                      Episode {i + 1}
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : null}
 
@@ -147,8 +155,8 @@ export default function MoviesSearch(props: MovieSearchProps) {
       ) : (
         <div className={isBigScreen ? "movie-search-results" : "movie-search-results-small"}>
           {searchResults.map((result) => (
-            <div className="result-wrapper">
-              <div key={result.id} className={"search-result"}>
+            <div className="result-wrapper" key={result.id}>
+              <div className={"search-result"}>
                 <img className="movie-result-img" src={`https://image.tmdb.org/t/p/original/${result.poster_path}`} />
                 <div className="movie-info">
                   <p>{result.title}</p>

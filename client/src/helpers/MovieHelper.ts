@@ -42,13 +42,17 @@ export default class MovieHelper {
   static async getMovieFile(movieId: string) {
     const response = await fetch(`${import.meta.env.VITE_FETCH_MOVIES_API_URL}${movieId}`);
     const result = (await response.json()) as MovieFileResponse;
-    if (!result.source) {
+    try {
+      if (!result.source) {
+        return "";
+      }
+      if (result.referer) {
+        return `${import.meta.env.VITE_PROXY_URL}${result.source}&headers={"referer":"${result.referer}"}`;
+      } else {
+        return `${import.meta.env.VITE_PROXY_URL}${result.source}`;
+      }
+    } catch {
       return "";
-    }
-    if (result.referer) {
-      return `${import.meta.env.VITE_PROXY_URL}${result.source}&headers={"referer":"${result.referer}"}`;
-    } else {
-      return `${import.meta.env.VITE_PROXY_URL}${result.source}`;
     }
   }
 
@@ -61,7 +65,6 @@ export default class MovieHelper {
         Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
       },
     };
-
     const response = await fetch(url, options);
     const result = (await response.json()) as TvSeriesDetails;
     return result;

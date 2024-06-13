@@ -39,7 +39,7 @@
 
 #tv-series-info {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.785);
+  background-color: rgba(0, 0, 0, 0.928);
   top: 0;
   left: 0;
   width: 100%;
@@ -51,8 +51,7 @@
   position: relative;
 }
 
-#loading-wrapper {
-  border: 1px sold orange;
+#loading {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.895);
   top: 0;
@@ -62,4 +61,10 @@
   z-index: 999;
   display: flex;
   justify-content: center;
+}
+
+#progress-wrapper {
+  position: sticky;
+  height: min-content;
+  top: 0;
 }
