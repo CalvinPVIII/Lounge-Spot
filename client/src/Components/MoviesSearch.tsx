@@ -1,4 +1,4 @@
-import { TextField, Button, CircularProgress, Pagination, IconButton } from "@mui/material";
+import { TextField, Button, CircularProgress, Pagination, IconButton, Alert, Snackbar } from "@mui/material";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import MovieHelper from "../helpers/MovieHelper";
@@ -23,6 +23,25 @@ export default function MoviesSearch(props: MovieSearchProps) {
   const [searchResults, setSearchResults] = useState<MovieInfo[]>([]);
 
   const [loading, setLoading] = useState(false);
+
+  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+
+  const handleOpenSuccessSnackbar = () => {
+    setSuccessSnackbarOpen(true);
+  };
+
+  const handleCloseSuccessSnackbar = () => {
+    setSuccessSnackbarOpen(false);
+  };
+
+  const handleOpenErrorSnackbar = () => {
+    setErrorSnackbarOpen(true);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setErrorSnackbarOpen(false);
+  };
 
   const [seriesDetails, setSeriesDetails] = useState<TvSeriesDetails | null>(null);
 
@@ -62,6 +81,8 @@ export default function MoviesSearch(props: MovieSearchProps) {
       console.log(url);
       if (url === "") {
         setLoading(false);
+        handleOpenErrorSnackbar();
+
         return;
       }
       console.log("adding movie");
@@ -74,8 +95,10 @@ export default function MoviesSearch(props: MovieSearchProps) {
       };
       props.handleRequestMovie(queueEntry);
       setLoading(false);
+      handleOpenSuccessSnackbar();
     } catch {
       setLoading(false);
+      handleOpenErrorSnackbar();
     }
   };
 
@@ -141,7 +164,7 @@ export default function MoviesSearch(props: MovieSearchProps) {
 
       <form onSubmit={handleFormSubmit} className={isBigScreen ? "search-input" : "search-input-small"}>
         <TextField
-          placeholder="paste url or search"
+          placeholder="search for movies or tv series"
           value={searchInput}
           onChange={handleSearchInput}
           variant="standard"
@@ -177,6 +200,16 @@ export default function MoviesSearch(props: MovieSearchProps) {
         </div>
       )}
       {pagination.max ? <Pagination count={pagination.max} defaultPage={pagination.current} siblingCount={1} onChange={handlePagination} /> : null}
+      <Snackbar open={successSnackbarOpen} autoHideDuration={2000} onClose={handleCloseSuccessSnackbar}>
+        <Alert onClose={handleCloseSuccessSnackbar} severity="success">
+          Video added to queue
+        </Alert>
+      </Snackbar>
+      <Snackbar open={errorSnackbarOpen} autoHideDuration={2000} onClose={handleCloseErrorSnackbar}>
+        <Alert onClose={handleCloseErrorSnackbar} severity="error">
+          Error loading content, please try again
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

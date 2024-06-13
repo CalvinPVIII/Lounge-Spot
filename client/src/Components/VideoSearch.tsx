@@ -41,6 +41,11 @@ export default function VideoSearch(props: VideoSearchProps) {
     const videoToAdd: QueueVideoInfo = { url: "", type: "YouTube" };
     if (typeof video === "string") {
       videoToAdd.url = video;
+      if (video.includes("twitch.tv")) {
+        videoToAdd.title = video;
+        videoToAdd.channel = "Livestream";
+        videoToAdd.thumbnail = "https://cdn.iconscout.com/icon/free/png-256/free-twitch-11-461838.png?f=webp";
+      }
     } else {
       videoToAdd.url = video.link;
       videoToAdd.thumbnail = video.thumbnails[0].url;
