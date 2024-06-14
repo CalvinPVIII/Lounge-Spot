@@ -1,4 +1,4 @@
-import { MovieFileResponse, MovieInfo, MovieSearchResults, TvInfo, TvSeriesDetails } from "../types";
+import { BackupMovieFileResponse, MovieFileResponse, MovieInfo, MovieSearchResults, TvInfo, TvSeriesDetails } from "../types";
 
 export default class MovieHelper {
   static async getPopularMovies() {
@@ -40,17 +40,38 @@ export default class MovieHelper {
   }
 
   static async getMovieFile(movieId: string) {
-    const response = await fetch(`${import.meta.env.VITE_FETCH_MOVIES_API_URL}${movieId}`);
-    const result = (await response.json()) as MovieFileResponse;
     try {
+      const response = await fetch(`${import.meta.env.VITE_FETCH_MOVIES_API_URL}${movieId}`);
+      const result = (await response.json()) as MovieFileResponse;
       if (!result.source) {
+        const backup = await MovieHelper.backupFileServer(movieId);
+        if (backup !== "") return backup;
         return "";
       }
       if (result.referer) {
-        return `${import.meta.env.VITE_PROXY_URL}${result.source}&headers={"referer":"${result.referer}"}`;
+        return `${import.meta.env.VITE_PROXY_URL}${``}&headers={"referer":"${result.referer}"}`;
       } else {
         return `${import.meta.env.VITE_PROXY_URL}${result.source}`;
       }
+    } catch {
+      const backup = await MovieHelper.backupFileServer(movieId);
+      if (backup !== "") return backup;
+      return "";
+    }
+  }
+
+  static async backupFileServer(id: string) {
+    const response = await fetch(`${import.meta.env.VITE_FETCH_BACKUP_URL}${id}`);
+    const result = (await response.json()) as BackupMovieFileResponse;
+    try {
+      if (!result.sources) {
+        return "";
+      }
+      const vidsrc = result.sources.find((s) => s.name === "Vidplay");
+      if (vidsrc && vidsrc.data.stream) {
+        return `${import.meta.env.VITE_PROXY_URL}${vidsrc.data.stream}`;
+      }
+      return "";
     } catch {
       return "";
     }

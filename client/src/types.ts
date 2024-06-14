@@ -158,6 +158,25 @@ export interface MovieFileResponse {
   referer?: string;
 }
 
+type Subtitle = {
+  lang: string;
+  file: string;
+};
+
+type Source = {
+  name: string;
+  data: {
+    stream: string | null;
+    subtitle: Subtitle[];
+  };
+};
+
+export interface BackupMovieFileResponse {
+  status: number;
+  info: string;
+  sources: Source[];
+}
+
 interface SeasonInfo {
   air_date: string;
   episode_count: number;
