@@ -1,20 +1,13 @@
-from flask import Flask, request, redirect, jsonify
-from flask_socketio import join_room, leave_room, send, SocketIO
+from flask import Flask, request, jsonify
+from flask_socketio import join_room, leave_room, SocketIO
 from flask_cors import CORS
 import random
 from string import ascii_uppercase
 import uuid
 import time
 from youtubesearchpython import VideosSearch, Video, ResultMode
-from seleniumwire import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.firefox.options import Options
-import asyncio
-from playwright.async_api import async_playwright
-import requests
-import time
+
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "super secret key!!!"

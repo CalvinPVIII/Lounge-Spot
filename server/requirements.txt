@@ -1,11 +1,6 @@
 Flask[async]
 flask-socketio
 flask_cors
-youtube-search
 youtube-search-python
 Gunicorn
 eventlet
-selenium
-selenium-wire
-blinker==1.7.0
-playwright

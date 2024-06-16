@@ -78,14 +78,12 @@ export default function MoviesSearch(props: MovieSearchProps) {
 
     try {
       const url = await MovieHelper.getMovieFile(movie.id.toString());
-      console.log(url);
       if (url === "") {
         setLoading(false);
         handleOpenErrorSnackbar();
 
         return;
       }
-      console.log("adding movie");
       const queueEntry: QueueVideoInfo = {
         title: movie.title,
         thumbnail: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,

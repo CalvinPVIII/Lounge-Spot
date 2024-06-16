@@ -28,7 +28,6 @@ export default function Home(props: HomeProps) {
 
     if (match) {
       const code = match[1];
-      console.log("Code:", code);
       setJoinFromUrl(true);
       setRoomCode(code.toUpperCase());
     }

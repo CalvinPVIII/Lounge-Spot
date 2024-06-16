@@ -95,7 +95,6 @@ export default function Room(props: RoomProps) {
 
     socket.on("updateVideoInfo", (data: VideoPlayerState) => {
       setVideoState(data);
-      console.log(data);
     });
 
     socket.on("receiveMessage", (data: ChatMessage[]) => {
