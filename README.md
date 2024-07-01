@@ -1,8 +1,26 @@
 # Lounge Spot
 
-Web app for watching videos and more with friends
+Lounge Spot, a full stack watch party web app:
 
-**Lounge Spot is currently under active development, and more information will be updated as development continues**
+Create private rooms for you and your friends to gather around the screen and enjoy your favorite YouTube videos or Twitch streams together.
+
+With Lounge Spot, you can:
+
+- Invite friends to join a private room using a unique link
+
+- Chat with each other in real-time while watching your content
+
+- Enjoy seamless video playback synchronization across all devices
+
+- Use our intuitive interface to control play/pause, volume, and more
+
+Built on top of a robust Flask API, WebSockets, and React/TypeScript front-end, Lounge Spot provides a smooth and reliable experience for you and your friends.
+
+**Lounge Spot is currently under active development, with more features planned to be implemented at a later date**
+
+Feel free to request additional features or report bugs on the [Issues page on Github](https://github.com/CalvinPVIII/Lounge-Spot/issues)
+
+## [View on the web](https://loungespot.netlify.app/)
 
 ### Technologies Used
 
@@ -12,7 +30,7 @@ Web app for watching videos and more with friends
 - TypeScript
 - Node
 - Material UI
-- Web Sockets
+- Socket.io
 - Vite
 
 ### Local Setup Instructions
@@ -32,8 +50,10 @@ To view and host this website locally, follow these instructions:
 - To run the client locally, run the command `npm run dev` inside the client folder. You'll find a link to the dev server in your terminal that you can copy and paste into your web browser.
 - To run the server locally, run the command `python main.py` inside the server folder.
 
+_The server can also be deployed via the included Dockerfile_
+
 ### License
 
 This website is licensed under the GNU General Public License v3.0. You can find more information about the license [here](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
-If you encounter any bugs or unexpected behaviors, please [submit an issue on GitHub](https://github.com/CalvinPVIII/calvindev-portfolio/issues).
+If you encounter any bugs or unexpected behaviors, please [submit an issue on GitHub](https://github.com/CalvinPVIII/Lounge-Spot/issues).
