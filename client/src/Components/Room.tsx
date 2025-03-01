@@ -39,6 +39,7 @@ export default function Room(props: RoomProps) {
     loading: false,
   });
 
+  console.log(videoState);
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const sendMessage = (message: string) => {
@@ -147,16 +148,16 @@ export default function Room(props: RoomProps) {
               members={members}
             />
             {isBigScreen ? (
-              <ContentTabs headers={["Queue", "Search", "Movies"]}>
+              <ContentTabs headers={["Queue", "Movies"]}>
                 <VideoQueue queue={videoState.queue} />
-                <VideoSearch handleRequestVideo={addToQueue} />
+
                 <MoviesSearch handleRequestMovie={addToQueue} />
               </ContentTabs>
             ) : (
-              <ContentTabs headers={["Chat", "Queue", "Search", "Movies"]}>
+              <ContentTabs headers={["Chat", "Queue", "Movies"]}>
                 <Chat messages={messages} handleSendMessage={sendMessage} roomCode={props.roomCode} />
                 <VideoQueue queue={videoState.queue} />
-                <VideoSearch handleRequestVideo={addToQueue} />
+
                 <MoviesSearch handleRequestMovie={addToQueue} />
               </ContentTabs>
             )}

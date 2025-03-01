@@ -3,7 +3,7 @@ import { QueueVideoInfo, UserInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
-import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined, Sync } from "@mui/icons-material";
+import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined, Sync, Fullscreen } from "@mui/icons-material";
 import { useMediaQuery } from "react-responsive";
 
 interface VideoPlayerProps {
@@ -65,6 +65,11 @@ export default function VideoPlayer(props: VideoPlayerProps) {
 
   const handleBuffer = () => {
     setPlayerLoading(true);
+  };
+
+  const handleFullScreen = () => {
+    const vidPlayer = document.querySelector(".react-player");
+    vidPlayer?.requestFullscreen();
   };
 
   return (
@@ -135,6 +140,9 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           </p>
         </div>
         <div id="sync-spacer"></div>
+        <IconButton onClick={handleFullScreen} disabled={props.videoState.url === ""}>
+          <Fullscreen />
+        </IconButton>
         <IconButton onClick={syncPlayer} disabled={props.videoState.url === "" ? true : false}>
           <Sync />
         </IconButton>
