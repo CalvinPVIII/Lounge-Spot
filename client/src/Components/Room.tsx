@@ -4,7 +4,7 @@ import { ChatMessage, QueueVideoInfo, RoomState, UserInfo, VideoPlayerState } fr
 import Chat from "./Chat";
 import VideoPlayer from "./VideoPlayer";
 import "../styles/Room.css";
-import VideoSearch from "./VideoSearch";
+// import VideoSearch from "./VideoSearch";
 import VideoQueue from "./VideoQueue";
 import ContentTabs from "./ContentTabs";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
