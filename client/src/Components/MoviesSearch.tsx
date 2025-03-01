@@ -16,7 +16,7 @@ export default function MoviesSearch(props: MovieSearchProps) {
   const [searchInput, setSearchInput] = useState("");
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [pagination, setPagination] = useState({ current: 0, max: 0 });
+  const [pagination] = useState({ current: 0, max: 0 });
   const [searching, setSearching] = useState(false);
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
