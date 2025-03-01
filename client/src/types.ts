@@ -112,84 +112,53 @@ export interface QueueVideoInfo {
 }
 
 export interface MovieInfo {
-  backdrop_path: string;
-  id: number;
-  original_title: string;
-  overview: string;
-  poster_path: string;
-  media_type: string;
-  adult: boolean;
+  id: string;
   title: string;
-  original_language: string;
-  genre_ids: number[];
-  popularity: number;
-  release_date?: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
+  url: string;
+  image: string;
+  releaseDate: string;
+  description: string;
+  genres: string[];
+  type: "Movie" | "TV";
+  casts: string[];
+  tags: string[];
+  production: string;
+  duration: string;
+  episodes: Array<{
+    id: string;
+    url: string;
+    title: string;
+    number: number;
+    season: number;
+  }>;
 }
-export interface TvInfo {
-  adult: boolean;
-  backdrop_path: string;
-  first_air_date: string;
-  genre_ids: number[];
-  id: number;
-  media_type: string;
-  name: string;
-  origin_country: string[];
-  original_language: string;
-  original_name: string;
-  overview: string;
-  popularity: number;
-  poster_path: string;
-  vote_average: number;
-  vote_count: number;
+
+export interface MovieInSearchResult {
+  id: string;
+  url: string;
+  title: string;
+  image: string;
+  releaseDate: string;
+  type: "Movie" | "TV Series";
 }
 
 export interface MovieSearchResults {
-  page: number;
-  results: MovieInfo[];
-  total_pages: number;
-  total_results: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  results: MovieInSearchResult[];
 }
 
 export interface MovieFileResponse {
-  source: string;
-  referer?: string;
-}
-
-type Subtitle = {
-  lang: string;
-  file: string;
-};
-
-type Source = {
-  name: string;
-  data: {
-    stream: string | null;
-    subtitle: Subtitle[];
+  headers: {
+    Referer: string;
   };
-};
-
-export interface BackupMovieFileResponse {
-  status: number;
-  info: string;
-  sources: Source[];
-}
-
-interface SeasonInfo {
-  air_date: string;
-  episode_count: number;
-  id: number;
-  name: string;
-  overview: string;
-  poster_path: string | null;
-  season_number: number;
-  vote_average: number;
-}
-export interface TvSeriesDetails {
-  seasons: SeasonInfo[];
-  id: number;
-  original_name: string;
-  poster_path: string;
+  sources: Array<{
+    url: string;
+    quality: string;
+    isM3U8: boolean;
+  }>;
+  subtitles: Array<{
+    url: string;
+    lang: string;
+  }>;
 }

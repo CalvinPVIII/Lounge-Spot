@@ -1,11 +1,10 @@
-import { Button, CircularProgress, IconButton, Slider } from "@mui/material";
+import { Alert, Button, CircularProgress, IconButton, Slider, Snackbar } from "@mui/material";
 import { QueueVideoInfo, UserInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
 import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined, Sync } from "@mui/icons-material";
 import { useMediaQuery } from "react-responsive";
-import MoviePlayer from "./MoviePlayer";
 
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
@@ -22,7 +21,16 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const [playerVolume, setPlayerVolume] = useState(50);
   const [muted, setPlayerMuted] = useState(false);
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
-  const [syncMoviePlayerTrigger, setSyncMoviePlayerTrigger] = useState(0);
+  const [playerLoading, setPlayerLoading] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+
+  const handleOpenErrorSnackbar = () => {
+    setErrorSnackbarOpen(true);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setErrorSnackbarOpen(false);
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -51,45 +59,42 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     setPlayerMuted(!muted);
   };
 
-  const syncMoviePlayer = () => {
-    setSyncMoviePlayerTrigger(syncMoviePlayerTrigger + 1);
+  const handleBufferEnd = () => {
+    setPlayerLoading(false);
+  };
+
+  const handleBuffer = () => {
+    setPlayerLoading(true);
   };
 
   return (
     <>
       <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
-        {props.videoState.queue[0] && props.videoState.queue[0].type === "Movie" ? (
-          <MoviePlayer
-            syncMoviePlayerTrigger={syncMoviePlayerTrigger}
-            videoState={props.videoState}
-            handlePauseVideo={props.handlePauseVideo}
-            handlePlayVideo={props.handlePlayVideo}
-            onVideoEnd={props.onVideoEnd}
-            muted={muted}
-            volume={playerVolume}
-          />
-        ) : (
-          <ReactPlayer
-            className="react-player"
-            ref={player}
-            url={props.videoState.url}
-            playing={props.videoState.playing}
-            allow="encrypted-media"
-            onPlay={props.handlePlayVideo}
-            onPause={props.handlePauseVideo}
-            onStart={syncPlayer}
-            onEnded={props.onVideoEnd}
-            width="100%"
-            height="100%"
-            volume={playerVolume / 100}
-            muted={muted}
-            config={{
-              youtube: {
-                playerVars: { showinfo: 0 },
-              },
-            }}
-          />
-        )}
+        {playerLoading && <h1>LOADING</h1>}
+        <ReactPlayer
+          className="react-player"
+          ref={player}
+          url={props.videoState.url}
+          playing={props.videoState.playing}
+          allow="encrypted-media"
+          onPlay={props.handlePlayVideo}
+          onPause={props.handlePauseVideo}
+          onStart={syncPlayer}
+          onEnded={props.onVideoEnd}
+          onBuffer={handleBuffer}
+          onBufferEnd={handleBufferEnd}
+          onError={handleOpenErrorSnackbar}
+          width="100%"
+          height="100%"
+          volume={playerVolume / 100}
+          muted={muted}
+          config={{
+            youtube: {
+              playerVars: { showinfo: 0 },
+            },
+          }}
+        />
+
         {props.videoState.loading ? (
           <div id="loading-circle">
             <CircularProgress />
@@ -130,13 +135,16 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           </p>
         </div>
         <div id="sync-spacer"></div>
-        <IconButton
-          onClick={props.videoState.queue[0] && props.videoState.queue[0].type === "Movie" ? syncMoviePlayer : syncPlayer}
-          disabled={props.videoState.url === "" ? true : false}
-        >
+        <IconButton onClick={syncPlayer} disabled={props.videoState.url === "" ? true : false}>
           <Sync />
         </IconButton>
       </div>
+
+      <Snackbar open={errorSnackbarOpen} autoHideDuration={2000} onClose={handleCloseErrorSnackbar}>
+        <Alert onClose={handleCloseErrorSnackbar} severity="error">
+          There was an error playing this video
+        </Alert>
+      </Snackbar>
     </>
   );
 }

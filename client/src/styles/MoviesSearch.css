@@ -68,3 +68,14 @@
   height: min-content;
   top: 0;
 }
+
+.episode-name {
+  transition: all 50ms ease-out;
+  cursor: pointer;
+}
+
+.episode-name:hover {
+  transition: all 50ms ease-in;
+  color: rgb(0, 153, 255);
+  transform: scale(1.01);
+}

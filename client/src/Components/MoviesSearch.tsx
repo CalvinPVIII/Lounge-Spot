@@ -1,8 +1,8 @@
 import { TextField, Button, CircularProgress, Pagination, IconButton, Alert, Snackbar } from "@mui/material";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import MovieHelper from "../helpers/MovieHelper";
-import { MovieInfo, QueueVideoInfo, TvSeriesDetails } from "../types";
+import { MovieInfo, MovieInSearchResult, QueueVideoInfo } from "../types";
 import "../styles/MoviesSearch.css";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -14,13 +14,15 @@ export default function MoviesSearch(props: MovieSearchProps) {
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const [searchInput, setSearchInput] = useState("");
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pagination, setPagination] = useState({ current: 0, max: 0 });
   const [searching, setSearching] = useState(false);
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
   };
 
-  const [searchResults, setSearchResults] = useState<MovieInfo[]>([]);
+  const [searchResults, setSearchResults] = useState<MovieInSearchResult[]>([]);
 
   const [loading, setLoading] = useState(false);
 
@@ -43,23 +45,15 @@ export default function MoviesSearch(props: MovieSearchProps) {
     setErrorSnackbarOpen(false);
   };
 
-  const [seriesDetails, setSeriesDetails] = useState<TvSeriesDetails | null>(null);
-
-  useEffect(() => {
-    const getPopMovies = async () => {
-      setSearching(true);
-      const result = await MovieHelper.getPopularMovies();
-      setSearchResults(result);
-      setSearching(false);
-    };
-    getPopMovies();
-  }, []);
+  const [seriesDetails, setSeriesDetails] = useState<MovieInfo | null>(null);
 
   const searchForMovies = async (pageNumber = 1) => {
     if (searchInput === "") return;
-    const result = await MovieHelper.searchMoviesAndTv(searchInput, pageNumber);
+    setSearching(true);
+    const result = await MovieHelper.searchMovie(searchInput, pageNumber);
     setSearchResults(result.results);
-    setPagination({ current: result.page, max: result.total_pages });
+    setSearching(false);
+    // setPagination({ current: result.page, max: result.total_pages });
   };
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -73,23 +67,21 @@ export default function MoviesSearch(props: MovieSearchProps) {
     }
   };
 
-  const handleMovieClick = async (movie: MovieInfo) => {
+  const handleMovieClick = async (movie: MovieInSearchResult) => {
     setLoading(true);
 
     try {
-      const url = await MovieHelper.getMovieFile(movie.id.toString());
-      if (url === "") {
-        setLoading(false);
-        handleOpenErrorSnackbar();
+      const movieInfo = await MovieHelper.getMovieInfo(movie.id.toString());
+      console.log(movieInfo);
+      const movieStream = await MovieHelper.getMovieStreams(movieInfo.id, movieInfo.episodes[0].id);
+      const url = movieStream.sources[0].url;
 
-        return;
-      }
       const queueEntry: QueueVideoInfo = {
         title: movie.title,
-        thumbnail: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
+        thumbnail: movie.image,
         url: url,
         type: "Movie",
-        channel: movie.media_type,
+        channel: movieInfo.type,
       };
       props.handleRequestMovie(queueEntry);
       setLoading(false);
@@ -100,31 +92,34 @@ export default function MoviesSearch(props: MovieSearchProps) {
     }
   };
 
-  const handleTvClick = async (series: MovieInfo) => {
-    const result = await MovieHelper.getTvDetails(series.id.toString());
+  const handleTvClick = async (series: MovieInSearchResult) => {
+    setLoading(true);
+    const result = await MovieHelper.getMovieInfo(series.id.toString());
+    console.log(result);
     setSeriesDetails(result);
+    setLoading(false);
   };
 
   const handleSeriesInfoClose = () => setSeriesDetails(null);
 
-  const handleSelectEpisode = async (seasonNumber: number, episodeNumber: number) => {
-    if (seriesDetails) {
+  const handleChoseEpisode = async (movieId: string, episodeId: string, episodeTitle: string) => {
+    try {
       setLoading(true);
-      const url = await MovieHelper.getMovieFile(`${seriesDetails.id}?s=${seasonNumber}&e=${episodeNumber}`);
-      if (url === "") {
-        return;
-      }
-
+      const stream = await MovieHelper.getMovieStreams(movieId, episodeId);
+      const url = stream.sources[0].url;
       const queueEntry: QueueVideoInfo = {
-        title: seriesDetails.original_name,
-        thumbnail: `https://image.tmdb.org/t/p/original/${seriesDetails.poster_path}`,
+        title: episodeTitle,
+        thumbnail: seriesDetails?.image,
         url: url,
         type: "Movie",
-        channel: `Season ${seasonNumber} Episode ${episodeNumber}`,
+        channel: "TV Series",
       };
       props.handleRequestMovie(queueEntry);
-      setSeriesDetails(null);
       setLoading(false);
+      handleOpenSuccessSnackbar();
+    } catch {
+      setLoading(false);
+      handleOpenErrorSnackbar();
     }
   };
 
@@ -144,16 +139,12 @@ export default function MoviesSearch(props: MovieSearchProps) {
             <IconButton onClick={handleSeriesInfoClose}>
               <CloseIcon />
             </IconButton>
-            {seriesDetails.seasons.map((season) => (
-              <div className="season-card" key={season.id}>
-                <h2>{season.name}</h2>
-                <div className="episodes">
-                  {Array.from({ length: season.episode_count }, (_, i) => (
-                    <Button key={i + 1} variant="outlined" onClick={() => handleSelectEpisode(season.season_number, i + 1)}>
-                      Episode {i + 1}
-                    </Button>
-                  ))}
-                </div>
+            {seriesDetails.episodes.length === 0 && <h2>No Episodes Found :(</h2>}
+            {seriesDetails.episodes.map((episode) => (
+              <div>
+                <h2 className="episode-name" onClick={() => handleChoseEpisode(seriesDetails.id, episode.id, episode.title)}>
+                  S{episode.season} EP{episode.number}: {episode.title}
+                </h2>
               </div>
             ))}
           </div>
@@ -161,40 +152,40 @@ export default function MoviesSearch(props: MovieSearchProps) {
       ) : null}
 
       <form onSubmit={handleFormSubmit} className={isBigScreen ? "search-input" : "search-input-small"}>
-        <TextField
-          placeholder="search for movies or tv series"
-          value={searchInput}
-          onChange={handleSearchInput}
-          variant="standard"
-          size="small"
-          label="search"
-        />
+        <TextField placeholder="search for movies" value={searchInput} onChange={handleSearchInput} variant="standard" size="small" label="search" />
         <Button type="submit">Search</Button>
       </form>
       {searching ? (
         <CircularProgress />
       ) : (
         <div className={isBigScreen ? "movie-search-results" : "movie-search-results-small"}>
-          {searchResults.map((result) => (
-            <div className="result-wrapper" key={result.id}>
-              <div className={"search-result"}>
-                <img className="movie-result-img" src={`https://image.tmdb.org/t/p/original/${result.poster_path}`} />
-                <div className="movie-info">
-                  <p>{result.title}</p>
-                  <p>{result.release_date ? `(${result.release_date.slice(0, 4)})` : null}</p>
+          {searchResults ? (
+            <>
+              {searchResults.map((result) => (
+                <div className="result-wrapper" key={result.id}>
+                  <div className={"search-result"}>
+                    <img className="movie-result-img" src={result.image} />
+                    <div className="movie-info">
+                      <p>{result.title}</p>
+                      <p>{result.releaseDate}</p>
+                    </div>
+                  </div>
+
+                  {result.type === "Movie" ? (
+                    <Button color="secondary" onClick={() => handleMovieClick(result)}>
+                      Add To Queue
+                    </Button>
+                  ) : (
+                    <Button color="secondary" onClick={() => handleTvClick(result)}>
+                      Browse Episodes
+                    </Button>
+                  )}
                 </div>
-              </div>
-              {result.media_type === "movie" ? (
-                <Button color="secondary" onClick={() => handleMovieClick(result)}>
-                  Add To Queue
-                </Button>
-              ) : (
-                <Button color="secondary" onClick={() => handleTvClick(result)}>
-                  Browse Episodes
-                </Button>
-              )}
-            </div>
-          ))}
+              ))}
+            </>
+          ) : (
+            <p></p>
+          )}
         </div>
       )}
       {pagination.max ? <Pagination count={pagination.max} defaultPage={pagination.current} siblingCount={1} onChange={handlePagination} /> : null}
