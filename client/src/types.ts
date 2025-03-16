@@ -109,6 +109,7 @@ export interface QueueVideoInfo {
   thumbnail?: string;
   id?: string;
   type?: "Movie" | "YouTube";
+  ref?: string;
 }
 
 export interface MovieInfo {

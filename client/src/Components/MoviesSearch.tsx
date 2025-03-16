@@ -72,7 +72,6 @@ export default function MoviesSearch(props: MovieSearchProps) {
 
     try {
       const movieInfo = await MovieHelper.getMovieInfo(movie.id.toString());
-      console.log(movieInfo);
       const movieStream = await MovieHelper.getMovieStreams(movieInfo.id, movieInfo.episodes[0].id);
       const url = movieStream.sources[0].url;
 
@@ -95,7 +94,6 @@ export default function MoviesSearch(props: MovieSearchProps) {
   const handleTvClick = async (series: MovieInSearchResult) => {
     setLoading(true);
     const result = await MovieHelper.getMovieInfo(series.id.toString());
-    console.log(result);
     setSeriesDetails(result);
     setLoading(false);
   };

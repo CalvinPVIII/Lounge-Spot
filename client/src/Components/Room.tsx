@@ -39,7 +39,6 @@ export default function Room(props: RoomProps) {
     loading: false,
   });
 
-  console.log(videoState);
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const sendMessage = (message: string) => {

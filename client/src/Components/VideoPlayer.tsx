@@ -79,7 +79,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
         <ReactPlayer
           className="react-player"
           ref={player}
-          url={props.videoState.url}
+          url={props.videoState.url ? import.meta.env.VITE_CORS_PROXY + props.videoState.url : ""}
           playing={props.videoState.playing}
           allow="encrypted-media"
           onPlay={props.handlePlayVideo}
