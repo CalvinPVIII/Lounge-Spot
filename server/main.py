@@ -159,6 +159,8 @@ def add_to_queue(data):
     room = request.headers.get("Room-Code").upper()
     user_id = request.headers.get("User-Id") 
     url = data.get('video', {}).get('url')
+    subtitles = data.get("video", {}).get("subtitles", [])
+
     if not room in rooms or not room or not user_id or not url:
         return 
 
@@ -183,6 +185,7 @@ def add_to_queue(data):
     room_video_info['queue'].append(videoInfo)
     if(room_video_info['url'] == ""):
         room_video_info['url'] = url
+        room_video_info['subtitles'] = subtitles
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
@@ -233,6 +236,7 @@ def vote_skip():
 def handle_move_to_next_video(room_video_info, roomCode):
     if(len(room_video_info['queue']) == 1):
         room_video_info['url'] = ""
+        room_video_info['subtitles'] = []
         room_video_info['queue'].pop(0)
         room_video_info['currentVideoId'] = ""
         room_video_info['playing'] = False
@@ -244,6 +248,7 @@ def handle_move_to_next_video(room_video_info, roomCode):
     else:
         room_video_info['queue'].pop(0)
         room_video_info['url'] = room_video_info['queue'][0]['url']
+        room_video_info['subtitles'] = room_video_info['queue'][0]['subtitles']
         room_video_info['currentVideoId'] = str(uuid.uuid4())
         room_video_info['playing'] = True
         room_video_info['pauseTimeStamp'] = 0
