@@ -1,10 +1,23 @@
-import { Alert, Button, CircularProgress, IconButton, Slider, Snackbar } from "@mui/material";
-import { QueueVideoInfo, UserInfo, VideoPlayerState } from "../types";
+import { Alert, Button, CircularProgress, IconButton, List, ListItem, ListItemText, Popover, Slider, Snackbar } from "@mui/material";
+import { QueueVideoInfo, Subtitle, UserInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
-import { VolumeDown, VolumeUp, VolumeOffOutlined, PlayArrowOutlined, PauseOutlined, Sync, Fullscreen } from "@mui/icons-material";
+import {
+  VolumeDown,
+  VolumeUp,
+  VolumeOffOutlined,
+  PlayArrowOutlined,
+  PauseOutlined,
+  Sync,
+  Fullscreen,
+  ClosedCaption,
+  FiberManualRecord,
+  Forward10,
+  Replay10,
+} from "@mui/icons-material";
 import { useMediaQuery } from "react-responsive";
+import { OnProgressProps } from "react-player/base";
 
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
@@ -14,6 +27,10 @@ interface VideoPlayerProps {
   onVideoEnd: () => void;
   handleVoteSkip: () => void;
   members: { [id: string]: UserInfo };
+  handleUpdateVideoTime: (time: number) => void;
+  handleSeekToVideoTime: (time: number) => void;
+  userId: string;
+  forceSyncPlayer: number;
 }
 
 export default function VideoPlayer(props: VideoPlayerProps) {
@@ -23,6 +40,20 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
   const [playerLoading, setPlayerLoading] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+  const [selectedSubtitles, setSelectedSubtitles] = useState<Subtitle | null>(null);
+  const [subtitleMenuOpen, setSubtitleMenuOpen] = useState(false);
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const handleSubtitlesClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+    setSubtitleMenuOpen(true);
+  };
+
+  const handleSubtitlesClose = () => {
+    setAnchorEl(null);
+    setSubtitleMenuOpen(false);
+  };
 
   const handleOpenErrorSnackbar = () => {
     setErrorSnackbarOpen(true);
@@ -32,6 +63,13 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     setErrorSnackbarOpen(false);
   };
 
+  const handleProgress = (e: OnProgressProps) => {
+    const membersArray = Object.values(props.members);
+    if (membersArray[0].userId === props.userId) {
+      props.handleUpdateVideoTime(e.playedSeconds);
+    }
+  };
+
   useEffect(() => {
     setTimeout(() => {
       if (!player) return;
@@ -39,16 +77,13 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     }, 1000);
   }, [props.videoState.url]);
 
-  const syncPlayer = () => {
-    if (props.videoState.startTimeStamp === 0) return;
+  useEffect(() => {
+    console.log("force sync");
+    syncPlayer();
+  }, [props.forceSyncPlayer]);
 
-    if (props.videoState.playPauseOffset !== 0 && props.videoState.playing === false) {
-      player.current?.seekTo(props.videoState.playPauseOffset + 1);
-    } else {
-      const currentTime = (Date.now() + 1000) / 1000 + props.videoState.playPauseOffset;
-      const videoPlayingLength = currentTime - props.videoState.startTimeStamp;
-      player.current?.seekTo(videoPlayingLength, "seconds");
-    }
+  const syncPlayer = () => {
+    player.current?.seekTo(props.videoState.videoTime);
   };
 
   const handleVolumeChange = (_event: Event, newValue: number | number[]) => {
@@ -72,6 +107,40 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     vidPlayer?.requestFullscreen();
   };
 
+  const handleChoseSubtitle = (subtitle: Subtitle | null) => {
+    if (player.current) {
+      const videoPlayer = player.current.getInternalPlayer();
+      const tracks = videoPlayer.textTracks;
+      for (let i = 0; i < tracks.length; i++) {
+        if (tracks[i].label === subtitle?.lang) {
+          tracks[i].mode = "showing";
+        } else {
+          tracks[i].mode = "disabled";
+        }
+      }
+    }
+    setSelectedSubtitles(subtitle);
+    handleSubtitlesClose();
+  };
+
+  const handleFastForward = (forwards: boolean) => {
+    if (!player.current) return;
+    if (forwards) {
+      console.log(player.current.getCurrentTime() + 10);
+      if (player.current.getCurrentTime() + 10 >= player.current.getDuration()) {
+        props.handleSeekToVideoTime(player.current.getDuration() - 1);
+      } else {
+        props.handleSeekToVideoTime(player.current.getCurrentTime() + 10);
+      }
+    } else {
+      if (player.current.getCurrentTime() - 10 <= 0) {
+        props.handleSeekToVideoTime(0);
+      } else {
+        props.handleSeekToVideoTime(player.current.getCurrentTime() - 10);
+      }
+    }
+  };
+
   return (
     <>
       <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
@@ -89,13 +158,28 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           onBuffer={handleBuffer}
           onBufferEnd={handleBufferEnd}
           onError={handleOpenErrorSnackbar}
+          onProgress={handleProgress}
           width="100%"
           height="100%"
           volume={playerVolume / 100}
           muted={muted}
           config={{
+            // @ts-expect-error force use hls.js
+            forceHLS: true,
             youtube: {
               playerVars: { showinfo: 0 },
+            },
+            file: {
+              tracks: props.videoState.subtitles?.map((sub) => ({
+                kind: "subtitles",
+                src: sub.url,
+                srcLang: sub.lang,
+                language: sub.lang,
+                label: sub.lang,
+              })),
+              attributes: {
+                crossOrigin: "anonymous",
+              },
             },
           }}
         />
@@ -130,6 +214,12 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           <Slider aria-label="Volume" value={playerVolume} onChange={handleVolumeChange} min={0} max={100} />
           <VolumeUp />
         </div>
+        <IconButton onClick={() => handleFastForward(false)} disabled={props.videoState.url === "" ? true : false}>
+          <Replay10 />
+        </IconButton>
+        <IconButton onClick={() => handleFastForward(true)} disabled={props.videoState.url === "" ? true : false}>
+          <Forward10 />
+        </IconButton>
         <div id="skip-info">
           <Button onClick={props.handleVoteSkip} color="secondary" disabled={props.videoState.url === "" ? true : false}>
             Vote to skip
@@ -140,6 +230,67 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           </p>
         </div>
         <div id="sync-spacer"></div>
+        {props.videoState.subtitles && props.videoState.subtitles.length > 0 && (
+          <Popover
+            open={subtitleMenuOpen}
+            anchorEl={anchorEl}
+            onClose={handleSubtitlesClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            sx={{
+              "& .MuiPaper-root": {
+                borderRadius: "8px",
+                padding: "8px",
+                minWidth: "150px",
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+              },
+            }}
+          >
+            <List sx={{ padding: 0 }}>
+              {props.videoState.subtitles.map((sub) => (
+                <ListItem
+                  key={sub.lang}
+                  onClick={() => handleChoseSubtitle(sub)}
+                  sx={{
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "#f0f0f0",
+                    },
+                  }}
+                >
+                  {selectedSubtitles?.lang === sub.lang ? <FiberManualRecord fontSize="small" sx={{ marginRight: "6px" }} /> : null}
+                  <ListItemText primary={sub.lang} />
+                </ListItem>
+              ))}
+              <ListItem
+                key={"no sub"}
+                onClick={() => handleChoseSubtitle(null)}
+                sx={{
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#f0f0f0",
+                  },
+                }}
+              >
+                {!selectedSubtitles ? <FiberManualRecord fontSize="small" sx={{ marginRight: "6px" }} /> : null}
+                <ListItemText primary={"None"} />
+              </ListItem>
+            </List>
+          </Popover>
+        )}
+        <IconButton disabled={!props.videoState.subtitles || props.videoState.subtitles.length === 0} onClick={handleSubtitlesClick}>
+          <ClosedCaption />
+        </IconButton>
         <IconButton onClick={handleFullScreen} disabled={props.videoState.url === ""}>
           <Fullscreen />
         </IconButton>

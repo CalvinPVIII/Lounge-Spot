@@ -74,7 +74,7 @@ export default function MoviesSearch(props: MovieSearchProps) {
       const movieInfo = await MovieHelper.getMovieInfo(movie.id.toString());
       const movieStream = await MovieHelper.getMovieStreams(movieInfo.id, movieInfo.episodes[0].id);
       const url = movieStream.sources[0].url;
-
+      console.log(MovieHelper.buildMovieUrl(url, movieStream.headers.Referer));
       const queueEntry: QueueVideoInfo = {
         title: movie.title,
         thumbnail: movie.image,
@@ -104,13 +104,21 @@ export default function MoviesSearch(props: MovieSearchProps) {
     try {
       setLoading(true);
       const stream = await MovieHelper.getMovieStreams(movieId, episodeId);
-      const url = stream.sources[0].url;
+      const url = MovieHelper.buildMovieUrl(stream.sources[0].url, stream.headers.Referer);
+
+      const engSubtitles = [];
+      for (const subtitleFile in stream.subtitles) {
+        if (stream.subtitles[subtitleFile].lang.includes("English")) {
+          engSubtitles.push(stream.subtitles[subtitleFile]);
+        }
+      }
       const queueEntry: QueueVideoInfo = {
         title: episodeTitle,
         thumbnail: seriesDetails?.image,
         url: url,
         type: "Movie",
         channel: "TV Series",
+        subtitles: engSubtitles,
       };
       props.handleRequestMovie(queueEntry);
       setLoading(false);

@@ -27,7 +27,7 @@ export default function Room(props: RoomProps) {
   const [activeSocket, setActiveSocket] = useState<Socket | null>(null);
   const [videoState, setVideoState] = useState<VideoPlayerState>({
     url: "",
-    currentTime: 0,
+    videoTime: 0,
     playing: false,
     maxTime: 0,
     startTimeStamp: 0,
@@ -38,11 +38,12 @@ export default function Room(props: RoomProps) {
     skipVotes: [],
     loading: false,
   });
+  const [forceSyncPlayer, setForceSyncPlayer] = useState(0);
 
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
 
   const sendMessage = (message: string) => {
-    const user: UserInfo = { name: props.name, id: props.userId, color: "", avatar: "" };
+    const user: UserInfo = { name: props.name, userId: props.userId, color: "", avatar: "" };
     activeSocket?.emit("sendMessage", { user, message });
   };
 
@@ -55,7 +56,7 @@ export default function Room(props: RoomProps) {
 
   const addToQueue = (video: QueueVideoInfo) => {
     if (!video.url) return;
-    const user: UserInfo = { name: props.name, id: props.userId, color: "", avatar: "" };
+    const user: UserInfo = { name: props.name, userId: props.userId, color: "", avatar: "" };
     activeSocket?.emit("addToQueue", { user, video });
   };
 
@@ -65,6 +66,14 @@ export default function Room(props: RoomProps) {
 
   const handleVoteSkip = () => {
     activeSocket?.emit("voteSkip");
+  };
+
+  const handleUpdateVideoTime = (time: number) => {
+    activeSocket?.emit("updateVideoTime", { videoTime: time });
+  };
+
+  const handleSeekToVideoTime = (time: number) => {
+    activeSocket?.emit("seekToVideoTime", { videoTime: time });
   };
 
   useEffect(() => {
@@ -98,8 +107,15 @@ export default function Room(props: RoomProps) {
       setVideoState(data);
     });
 
-    socket.on("receiveMessage", (data: ChatMessage[]) => {
-      setMessages(data);
+    socket.on("receiveMessage", (data: RoomState) => {
+      setMembers(data.members);
+      setMessages(data.messages);
+    });
+
+    socket.on("forceUpdateVideoInfo", (data: VideoPlayerState) => {
+      setVideoState(data);
+      console.log(forceSyncPlayer + 1);
+      setForceSyncPlayer((prev) => prev + 1);
     });
 
     return () => {
@@ -145,6 +161,10 @@ export default function Room(props: RoomProps) {
               onVideoEnd={handleVideoEnd}
               handleVoteSkip={handleVoteSkip}
               members={members}
+              userId={props.userId}
+              handleUpdateVideoTime={handleUpdateVideoTime}
+              handleSeekToVideoTime={handleSeekToVideoTime}
+              forceSyncPlayer={forceSyncPlayer}
             />
             {isBigScreen ? (
               <ContentTabs headers={["Queue", "Movies"]}>

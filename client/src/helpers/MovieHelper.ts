@@ -22,6 +22,11 @@ export default class MovieHelper {
   static async getMovieStreams(movieId: string, episodeId: string) {
     const response = await fetch(`https://consumet-api-delta.vercel.app/movies/goku/watch?episodeId=${episodeId}&mediaId=${movieId}`);
     const data = await response.json();
+    console.log(data);
     return data as MovieFileResponse;
+  }
+
+  static buildMovieUrl(url: string, referrerUrl: string) {
+    return `${url}&headers={"referrer":"${referrerUrl}"}`;
   }
 }

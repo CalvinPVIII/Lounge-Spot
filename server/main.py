@@ -48,7 +48,7 @@ def search():
 def create_room():
     if(request.method == "POST"):
         room_code = generate_unique_code(4)
-        rooms[room_code] = {"members": {}, "messages": [], "videoInfo": {"url": "","queue": [], "playing": False, "loading": False, "currentVideoId": "", "currentTime":0, "maxTime":0, "startTimeStamp": 0, "pauseTimeStamp": 0, "playPauseOffset": 0, "skipVotes": []}}
+        rooms[room_code] = {"members": {}, "messages": [], "videoInfo": {"url": "","queue": [], "playing": False, "loading": False, "currentVideoId": "", "videoTime":0, "maxTime":0, "startTimeStamp": 0, "pauseTimeStamp": 0, "playPauseOffset": 0, "skipVotes": []}}
         print("room created: " + room_code)
         response = jsonify({"status": "success", "message": "Room created", "data": {"roomCode": room_code}})
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -106,7 +106,7 @@ def disconnect():
             del rooms[room]
         else:
             rooms[room]["messages"].append({"user": {"id": "system"}, "message": f"{user_name} left the room", "timestamp": time.time() })
-            socketio.emit("receiveMessage", rooms[room]["messages"],to=room)
+            socketio.emit("receiveMessage", rooms[room],to=room)
         print(rooms)
 
 
@@ -121,7 +121,7 @@ def receive_message(data):
         return
     
     rooms[room]["messages"].append({"user": user, "message": message, "timestamp": time.time()})
-    socketio.emit("receiveMessage", rooms[room]["messages"],to=room)
+    socketio.emit("receiveMessage", rooms[room],to=room)
 
 @socketio.on("startVideo")
 def start_video():
@@ -180,11 +180,10 @@ def add_to_queue(data):
 
     videoInfo = {"title": title, "channel": channel, "thumbnail": thumbnail, "url": url, "id": str(uuid.uuid4()), "type": videoType}
 
-    print(videoInfo)
-
     room_video_info = rooms[room]['videoInfo']
     room_video_info['queue'].append(videoInfo)
     if(room_video_info['url'] == ""):
+        room_video_info['videoTime'] = 0
         room_video_info['url'] = url
         room_video_info['subtitles'] = subtitles
         room_video_info['currentVideoId'] = str(uuid.uuid4())
@@ -232,9 +231,37 @@ def vote_skip():
     socketio.emit("updateVideoInfo", rooms[room]['videoInfo'], to=room)
 
 
+@socketio.on("updateVideoTime")
+def update_video_time(data):
+    room_code = request.headers.get("Room-Code").upper()
+    user_id = request.headers.get("User-Id") 
+    time = data['videoTime']
+    if not room_code in rooms or not room_code or not user_id:
+        return 
+    
+    room=rooms[room_code]
+    print(room)
+    room['videoInfo']['videoTime'] = time
+    socketio.emit("updateVideoInfo", room['videoInfo'], to=room_code)
+
+    
+@socketio.on("seekToVideoTime")
+def seek_to_video_time(data):
+    room_code = request.headers.get("Room-Code").upper()
+    user_id = request.headers.get("User-Id") 
+    time = data['videoTime']
+    if not room_code in rooms or not room_code or not user_id:
+        return 
+    
+    room=rooms[room_code]
+    print(room)
+    room['videoInfo']['videoTime'] = time
+    print(time)
+    socketio.emit("forceUpdateVideoInfo", room['videoInfo'], to=room_code)
 
 
 def handle_move_to_next_video(room_video_info, roomCode):
+    room_video_info['videoTime'] = 0
     if(len(room_video_info['queue']) == 1):
         room_video_info['url'] = ""
         room_video_info['subtitles'] = []

@@ -18,7 +18,7 @@ export interface CreateRoomResponse extends APIResponse {
 
 export interface UserInfo {
   name: string;
-  id: string;
+  userId: string;
   color: string;
   avatar: string;
 }
@@ -34,11 +34,16 @@ export interface RoomState {
   messages: ChatMessage[];
   videoInfo: VideoPlayerState;
 }
+export interface Subtitle {
+  url: string;
+  lang: string;
+}
 
 export interface VideoPlayerState {
   url: string;
+  subtitles?: Array<Subtitle>;
   playing: boolean;
-  currentTime: number;
+  videoTime: number;
   maxTime: number;
   startTimeStamp: number;
   pauseTimeStamp: number;
@@ -110,6 +115,7 @@ export interface QueueVideoInfo {
   id?: string;
   type?: "Movie" | "YouTube";
   ref?: string;
+  subtitles?: Array<Subtitle>;
 }
 
 export interface MovieInfo {
@@ -158,8 +164,5 @@ export interface MovieFileResponse {
     quality: string;
     isM3U8: boolean;
   }>;
-  subtitles: Array<{
-    url: string;
-    lang: string;
-  }>;
+  subtitles: Array<Subtitle>;
 }
