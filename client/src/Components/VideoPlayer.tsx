@@ -108,20 +108,24 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   };
 
   const handleChoseSubtitle = (subtitle: Subtitle | null) => {
+    setSelectedSubtitles(subtitle);
+    handleSubtitlesClose();
+  };
+
+  useEffect(() => {
     if (player.current) {
       const videoPlayer = player.current.getInternalPlayer();
+      if (!videoPlayer) return;
       const tracks = videoPlayer.textTracks;
       for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i].label === subtitle?.lang) {
+        if (tracks[i].label === selectedSubtitles?.lang) {
           tracks[i].mode = "showing";
         } else {
           tracks[i].mode = "disabled";
         }
       }
     }
-    setSelectedSubtitles(subtitle);
-    handleSubtitlesClose();
-  };
+  }, [selectedSubtitles]);
 
   const handleFastForward = (forwards: boolean) => {
     if (!player.current) return;
@@ -148,7 +152,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
         <ReactPlayer
           className="react-player"
           ref={player}
-          url={props.videoState.url ? import.meta.env.VITE_CORS_PROXY + props.videoState.url : ""}
+          url={props.videoState.url ? props.videoState.url : ""}
           playing={props.videoState.playing}
           allow="encrypted-media"
           onPlay={props.handlePlayVideo}

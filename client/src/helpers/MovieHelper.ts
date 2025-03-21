@@ -26,7 +26,19 @@ export default class MovieHelper {
     return data as MovieFileResponse;
   }
 
-  static buildMovieUrl(url: string, referrerUrl: string) {
-    return `${url}&headers={"referrer":"${referrerUrl}"}`;
+  static buildMovieUrl(url: string, referrer: string) {
+    const proxyUrl = import.meta.env.VITE_CF_PROXY;
+    const searchParams = new URLSearchParams();
+    searchParams.set("url", url);
+    searchParams.set(
+      "headers",
+      JSON.stringify({
+        referrer: referrer,
+      })
+    );
+
+    const finalUrl = `${proxyUrl}v2?${searchParams.toString()}`;
+    console.log(finalUrl);
+    return finalUrl;
   }
 }

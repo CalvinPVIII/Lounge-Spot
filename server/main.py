@@ -261,10 +261,10 @@ def seek_to_video_time(data):
 
 
 def handle_move_to_next_video(room_video_info, roomCode):
-    room_video_info['videoTime'] = 0
     if(len(room_video_info['queue']) == 1):
         room_video_info['url'] = ""
         room_video_info['subtitles'] = []
+        room_video_info['videoTime'] = 0
         room_video_info['queue'].pop(0)
         room_video_info['currentVideoId'] = ""
         room_video_info['playing'] = False
@@ -275,6 +275,7 @@ def handle_move_to_next_video(room_video_info, roomCode):
         room_video_info['loading'] = False
     else:
         room_video_info['queue'].pop(0)
+        room_video_info['videoTime'] = 0
         room_video_info['url'] = room_video_info['queue'][0]['url']
         room_video_info['subtitles'] = room_video_info['queue'][0]['subtitles']
         room_video_info['currentVideoId'] = str(uuid.uuid4())

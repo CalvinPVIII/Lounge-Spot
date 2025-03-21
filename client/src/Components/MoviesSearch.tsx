@@ -73,8 +73,7 @@ export default function MoviesSearch(props: MovieSearchProps) {
     try {
       const movieInfo = await MovieHelper.getMovieInfo(movie.id.toString());
       const movieStream = await MovieHelper.getMovieStreams(movieInfo.id, movieInfo.episodes[0].id);
-      const url = movieStream.sources[0].url;
-      console.log(MovieHelper.buildMovieUrl(url, movieStream.headers.Referer));
+      const url = MovieHelper.buildMovieUrl(movieStream.sources[0].url, movieStream.headers.Referer);
       const queueEntry: QueueVideoInfo = {
         title: movie.title,
         thumbnail: movie.image,
@@ -105,6 +104,8 @@ export default function MoviesSearch(props: MovieSearchProps) {
       setLoading(true);
       const stream = await MovieHelper.getMovieStreams(movieId, episodeId);
       const url = MovieHelper.buildMovieUrl(stream.sources[0].url, stream.headers.Referer);
+
+      console.log(url);
 
       const engSubtitles = [];
       for (const subtitleFile in stream.subtitles) {
@@ -149,7 +150,12 @@ export default function MoviesSearch(props: MovieSearchProps) {
             {seriesDetails.episodes.map((episode) => (
               <div>
                 <h2 className="episode-name" onClick={() => handleChoseEpisode(seriesDetails.id, episode.id, episode.title)}>
-                  S{episode.season} EP{episode.number}: {episode.title}
+                  {episode.season && episode.number && (
+                    <span>
+                      S{episode.season} EP{episode.number}:{" "}
+                    </span>
+                  )}
+                  {episode.title}
                 </h2>
               </div>
             ))}
