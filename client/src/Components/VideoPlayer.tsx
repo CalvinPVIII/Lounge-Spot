@@ -107,25 +107,20 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     vidPlayer?.requestFullscreen();
   };
 
-  const handleChoseSubtitle = (subtitle: Subtitle | null) => {
-    setSelectedSubtitles(subtitle);
-    handleSubtitlesClose();
-  };
-
-  useEffect(() => {
+  const handleChangeSubtitles = (subtitle: Subtitle | null) => {
     if (player.current) {
       const videoPlayer = player.current.getInternalPlayer();
-      if (!videoPlayer) return;
       const tracks = videoPlayer.textTracks;
       for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i].label === selectedSubtitles?.lang) {
+        if (subtitle !== null && tracks[i].language === subtitle.lang) {
           tracks[i].mode = "showing";
         } else {
           tracks[i].mode = "disabled";
         }
       }
     }
-  }, [selectedSubtitles]);
+    setSelectedSubtitles(subtitle);
+  };
 
   const handleFastForward = (forwards: boolean) => {
     if (!player.current) return;
@@ -260,7 +255,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
               {props.videoState.subtitles.map((sub) => (
                 <ListItem
                   key={sub.lang}
-                  onClick={() => handleChoseSubtitle(sub)}
+                  onClick={() => handleChangeSubtitles(sub)}
                   sx={{
                     padding: "8px 16px",
                     borderRadius: "4px",
@@ -276,7 +271,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
               ))}
               <ListItem
                 key={"no sub"}
-                onClick={() => handleChoseSubtitle(null)}
+                onClick={() => handleChangeSubtitles(null)}
                 sx={{
                   padding: "8px 16px",
                   borderRadius: "4px",

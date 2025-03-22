@@ -26,19 +26,9 @@ export default class MovieHelper {
     return data as MovieFileResponse;
   }
 
-  static buildMovieUrl(url: string, referrer: string) {
-    const proxyUrl = import.meta.env.VITE_CF_PROXY;
-    const searchParams = new URLSearchParams();
-    searchParams.set("url", url);
-    searchParams.set(
-      "headers",
-      JSON.stringify({
-        referrer: referrer,
-      })
-    );
-
-    const finalUrl = `${proxyUrl}v2?${searchParams.toString()}`;
-    console.log(finalUrl);
-    return finalUrl;
+  static buildMovieUrl(url: string, referrerUrl: string) {
+    const proxyUrl = import.meta.env.VITE_CORS_PROXYV2;
+    console.log(`${proxyUrl}?url=${url}&ref${referrerUrl}`);
+    return `${proxyUrl}?url=${url}&ref${referrerUrl}`;
   }
 }
