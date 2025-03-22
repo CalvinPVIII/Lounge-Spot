@@ -147,8 +147,8 @@ export default function MoviesSearch(props: MovieSearchProps) {
               <CloseIcon />
             </IconButton>
             {seriesDetails.episodes.length === 0 && <h2>No Episodes Found :(</h2>}
-            {seriesDetails.episodes.map((episode) => (
-              <div>
+            {seriesDetails.episodes.map((episode, index) => (
+              <div key={`episode+${index}`}>
                 <h2 className="episode-name" onClick={() => handleChoseEpisode(seriesDetails.id, episode.id, episode.title)}>
                   {episode.season && episode.number && (
                     <span>
