@@ -1,43 +1,65 @@
-import { MovieFileResponse, MovieInfo, MovieSearchResults } from "../types";
+import { MovieFileResponse, MovieInfo, MovieSearchResults, TvInfo, TvSeriesDetails } from "../types";
 
 export default class MovieHelper {
-  // static async getPopularMovies() {
-  //   const response = await fetch(`https://consumet-api-delta.vercel.app/movies/flixhq/trending`);
-  //   const data = (await response.json()) as MovieSearchResults;
-  //   return data.results;
-  // }
-
-  static async searchMovie(query: string, pageNumber: number) {
-    const response = await fetch(`https://consumet-api-delta.vercel.app/movies/goku/${query}?page=${pageNumber}`);
-    const data = await response.json();
-    return data as MovieSearchResults;
+  static async getPopularMovies() {
+    const url = "https://api.themoviedb.org/3/trending/movie/week?language=en-US";
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
+      },
+    };
+    const response = await fetch(url, options);
+    const result = await response.json();
+    return result.results as MovieInfo[];
   }
 
-  static async getMovieInfo(movieId: string) {
-    const response = await fetch(`https://consumet-api-delta.vercel.app/movies/goku/info?id=${movieId}`);
-    const data = await response.json();
-    return data as MovieInfo;
+  static async searchMoviesAndTv(query: string, page = 1) {
+    const url = `https://api.themoviedb.org/3/search/multi?query=${query}&include_adult=false&language=en-US&page=${page}`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
+      },
+    };
+    const response = await fetch(url, options);
+    const result = await response.json();
+    result.results = result.results
+      .filter((result: MovieInfo | TvInfo) => result.media_type !== "person")
+      .map((result: MovieInfo | TvInfo) => {
+        if (result.media_type === "movie") {
+          return result;
+        } else if (result.media_type === "tv") {
+          const tvRes = result as TvInfo;
+          return { title: tvRes.name, id: tvRes.id, release_date: tvRes.first_air_date, poster_path: tvRes.poster_path };
+        }
+      });
+    return result as MovieSearchResults;
   }
 
-  static async getMovieStreams(movieId: string, episodeId: string) {
-    const response = await fetch(`https://consumet-api-delta.vercel.app/movies/goku/watch?episodeId=${episodeId}&mediaId=${movieId}`);
-    const data = await response.json();
-    console.log(data);
-    return data as MovieFileResponse;
+  static async getMovieFile(movieId: string) {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_FETCH_MOVIES_API_URL}${movieId}`);
+      const result = (await response.json()) as MovieFileResponse;
+      return result.videoSource;
+    } catch {
+      return null;
+    }
   }
 
-  static buildMovieUrl(url: string, referrerUrl: string) {
-    const proxyUrl = import.meta.env.VITE_CORS_PROXYV2;
-    console.log(`${proxyUrl}?url=${url}&ref${referrerUrl}`);
-    return `${proxyUrl}?url=${url}&ref${referrerUrl}`;
+  static async getTvDetails(id: string) {
+    const url = `https://api.themoviedb.org/3/tv/${id}?language=en-US`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
+      },
+    };
+    const response = await fetch(url, options);
+    const result = (await response.json()) as TvSeriesDetails;
+    return result;
   }
-
-  // static buildMovieUrl(url: string, referrerUrl: string) {
-  //   const proxyUrl = import.meta.env.VITE_CORS_PROXY;
-  //   const headers = JSON.stringify({ referer: referrerUrl }); // Ensure valid JSON
-
-  //   return `${proxyUrl}?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(headers)}`;
-  // }
 }
-
-// &headers=${encodeURIComponent(`{"referrer":${encodeURIComponent(referrerUrl)}}`)}

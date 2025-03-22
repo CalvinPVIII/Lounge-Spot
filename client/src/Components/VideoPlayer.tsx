@@ -1,5 +1,5 @@
 import { Alert, Button, CircularProgress, IconButton, List, ListItem, ListItemText, Popover, Slider, Snackbar } from "@mui/material";
-import { QueueVideoInfo, Subtitle, UserInfo, VideoPlayerState } from "../types";
+import { QueueVideoInfo, UserInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
@@ -40,7 +40,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
   const [playerLoading, setPlayerLoading] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-  const [selectedSubtitles, setSelectedSubtitles] = useState<Subtitle | null>(null);
+  // const [selectedSubtitles, setSelectedSubtitles] = useState<Subtitle | null>(null);
   const [subtitleMenuOpen, setSubtitleMenuOpen] = useState(false);
   const [fastForwardDisabled, setFastForwardDisabled] = useState(false);
 
@@ -112,20 +112,20 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     vidPlayer?.requestFullscreen();
   };
 
-  const handleChangeSubtitles = (subtitle: Subtitle | null) => {
-    if (player.current) {
-      const videoPlayer = player.current.getInternalPlayer();
-      const tracks = videoPlayer.textTracks;
-      for (let i = 0; i < tracks.length; i++) {
-        if (subtitle !== null && tracks[i].language === subtitle.lang) {
-          tracks[i].mode = "showing";
-        } else {
-          tracks[i].mode = "disabled";
-        }
-      }
-    }
-    setSelectedSubtitles(subtitle);
-  };
+  // const handleChangeSubtitles = (subtitle: Subtitle | null) => {
+  //   if (player.current) {
+  //     const videoPlayer = player.current.getInternalPlayer();
+  //     const tracks = videoPlayer.textTracks;
+  //     for (let i = 0; i < tracks.length; i++) {
+  //       if (subtitle !== null && tracks[i].language === subtitle.lang) {
+  //         tracks[i].mode = "showing";
+  //       } else {
+  //         tracks[i].mode = "disabled";
+  //       }
+  //     }
+  //   }
+  //   setSelectedSubtitles(subtitle);
+  // };
 
   const handleFastForward = (forwards: boolean) => {
     if (!player.current) return;
@@ -178,18 +178,18 @@ export default function VideoPlayer(props: VideoPlayerProps) {
             youtube: {
               playerVars: { showinfo: 0 },
             },
-            file: {
-              tracks: props.videoState.subtitles?.map((sub) => ({
-                kind: "subtitles",
-                src: sub.url,
-                srcLang: sub.lang,
-                language: sub.lang,
-                label: sub.lang,
-              })),
-              attributes: {
-                crossOrigin: "anonymous",
-              },
-            },
+            // file: {
+            //   tracks: props.videoState.subtitles?.map((sub) => ({
+            //     kind: "subtitles",
+            //     src: sub.url,
+            //     srcLang: sub.lang,
+            //     language: sub.lang,
+            //     label: sub.lang,
+            //   })),
+            //   attributes: {
+            //     crossOrigin: "anonymous",
+            //   },
+            // },
           }}
         />
 
@@ -239,7 +239,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           </p>
         </div>
         <div id="sync-spacer"></div>
-        {props.videoState.subtitles && props.videoState.subtitles.length > 0 && (
+        {/* {props.videoState.subtitles && props.videoState.subtitles.length > 0 && (
           <Popover
             open={subtitleMenuOpen}
             anchorEl={anchorEl}
@@ -296,7 +296,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
               </ListItem>
             </List>
           </Popover>
-        )}
+        )} */}
         <IconButton disabled={!props.videoState.subtitles || props.videoState.subtitles.length === 0} onClick={handleSubtitlesClick}>
           <ClosedCaption />
         </IconButton>
