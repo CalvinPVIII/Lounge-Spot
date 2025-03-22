@@ -42,6 +42,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
   const [selectedSubtitles, setSelectedSubtitles] = useState<Subtitle | null>(null);
   const [subtitleMenuOpen, setSubtitleMenuOpen] = useState(false);
+  const [fastForwardDisabled, setFastForwardDisabled] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -83,7 +84,11 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   }, [props.forceSyncPlayer]);
 
   const syncPlayer = () => {
+    setFastForwardDisabled(true);
     player.current?.seekTo(props.videoState.videoTime);
+    setTimeout(() => {
+      setFastForwardDisabled(false);
+    }, 1500);
   };
 
   const handleVolumeChange = (_event: Event, newValue: number | number[]) => {
@@ -143,7 +148,12 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   return (
     <>
       <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
-        {playerLoading && <h1>LOADING</h1>}
+        {playerLoading && (
+          <span id="video-player-loading">
+            <CircularProgress size={100} />
+          </span>
+        )}
+
         <ReactPlayer
           className="react-player"
           ref={player}
@@ -213,10 +223,10 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           <Slider aria-label="Volume" value={playerVolume} onChange={handleVolumeChange} min={0} max={100} />
           <VolumeUp />
         </div>
-        <IconButton onClick={() => handleFastForward(false)} disabled={props.videoState.url === "" ? true : false}>
+        <IconButton onClick={() => handleFastForward(false)} disabled={props.videoState.url === "" || fastForwardDisabled ? true : false}>
           <Replay10 />
         </IconButton>
-        <IconButton onClick={() => handleFastForward(true)} disabled={props.videoState.url === "" ? true : false}>
+        <IconButton onClick={() => handleFastForward(true)} disabled={props.videoState.url === "" || fastForwardDisabled ? true : false}>
           <Forward10 />
         </IconButton>
         <div id="skip-info">
