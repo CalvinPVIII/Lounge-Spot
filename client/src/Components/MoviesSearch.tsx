@@ -77,8 +77,8 @@ export default function MoviesSearch(props: MovieSearchProps) {
     setLoading(true);
 
     try {
-      const url = await MovieHelper.getMovieFile(`/movie/${movie.id.toString()}`);
-      if (!url) {
+      const videoFiles = await MovieHelper.getMovieFile(movie.id);
+      if (!videoFiles) {
         setLoading(false);
         handleOpenErrorSnackbar();
 
@@ -87,9 +87,10 @@ export default function MoviesSearch(props: MovieSearchProps) {
       const queueEntry: QueueVideoInfo = {
         title: movie.title,
         thumbnail: `https://image.tmdb.org/t/p/original/${movie.poster_path}`,
-        url: url,
+        url: videoFiles.videoSource,
         type: "Movie",
         channel: movie.media_type,
+        subtitles: videoFiles.subtitles,
       };
       console.log(queueEntry);
       props.handleRequestMovie(queueEntry);
@@ -111,8 +112,8 @@ export default function MoviesSearch(props: MovieSearchProps) {
   const handleSelectEpisode = async (seasonNumber: number, episodeNumber: number) => {
     if (seriesDetails) {
       setLoading(true);
-      const url = await MovieHelper.getMovieFile(`/tv/${seriesDetails.id}/${seasonNumber}/${episodeNumber}`);
-      if (!url) {
+      const videoFiles = await MovieHelper.getMovieFile(seriesDetails.id, seasonNumber, episodeNumber);
+      if (!videoFiles) {
         setLoading(false);
         handleOpenErrorSnackbar();
 
@@ -122,9 +123,10 @@ export default function MoviesSearch(props: MovieSearchProps) {
       const queueEntry: QueueVideoInfo = {
         title: seriesDetails.original_name,
         thumbnail: `https://image.tmdb.org/t/p/original/${seriesDetails.poster_path}`,
-        url: url,
+        url: videoFiles.videoSource,
         type: "Movie",
         channel: `Season ${seasonNumber} Episode ${episodeNumber}`,
+        subtitles: videoFiles.subtitles,
       };
       props.handleRequestMovie(queueEntry);
       setSeriesDetails(null);

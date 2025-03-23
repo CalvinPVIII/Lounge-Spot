@@ -1,5 +1,5 @@
 import { Alert, Button, CircularProgress, IconButton, List, ListItem, ListItemText, Popover, Slider, Snackbar } from "@mui/material";
-import { QueueVideoInfo, UserInfo, VideoPlayerState } from "../types";
+import { QueueVideoInfo, UserInfo, Subtitle, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
 import "../styles/VideoPlayer.css";
@@ -18,6 +18,7 @@ import {
 } from "@mui/icons-material";
 import { useMediaQuery } from "react-responsive";
 import { OnProgressProps } from "react-player/base";
+import { parseToVTT } from "wyzie-lib";
 
 interface VideoPlayerProps {
   handlePlayVideo: () => void;
@@ -40,7 +41,8 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const isBigScreen = useMediaQuery({ query: "(min-width: 950px)" });
   const [playerLoading, setPlayerLoading] = useState(false);
   const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-  // const [selectedSubtitles, setSelectedSubtitles] = useState<Subtitle | null>(null);
+  const [availableSubtitles, setAvailableSubtitles] = useState<Subtitle[] | null>(null);
+  const [selectedSubtitles, setSelectedSubtitles] = useState<Subtitle | null>(null);
   const [subtitleMenuOpen, setSubtitleMenuOpen] = useState(false);
   const [fastForwardDisabled, setFastForwardDisabled] = useState(false);
 
@@ -75,6 +77,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     setTimeout(() => {
       if (!player) return;
       syncPlayer();
+      console.log("test");
     }, 1000);
   }, [props.videoState.url]);
 
@@ -112,20 +115,20 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     vidPlayer?.requestFullscreen();
   };
 
-  // const handleChangeSubtitles = (subtitle: Subtitle | null) => {
-  //   if (player.current) {
-  //     const videoPlayer = player.current.getInternalPlayer();
-  //     const tracks = videoPlayer.textTracks;
-  //     for (let i = 0; i < tracks.length; i++) {
-  //       if (subtitle !== null && tracks[i].language === subtitle.lang) {
-  //         tracks[i].mode = "showing";
-  //       } else {
-  //         tracks[i].mode = "disabled";
-  //       }
-  //     }
-  //   }
-  //   setSelectedSubtitles(subtitle);
-  // };
+  const handleChangeSubtitles = (subtitle: Subtitle | null) => {
+    if (player.current) {
+      const videoPlayer = player.current.getInternalPlayer();
+      const tracks = videoPlayer.textTracks;
+      for (let i = 0; i < tracks.length; i++) {
+        if (subtitle !== null && tracks[i].language === subtitle.lang) {
+          tracks[i].mode = "showing";
+        } else {
+          tracks[i].mode = "disabled";
+        }
+      }
+      setSelectedSubtitles(subtitle);
+    }
+  };
 
   const handleFastForward = (forwards: boolean) => {
     if (!player.current) return;
@@ -145,6 +148,29 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     }
   };
 
+  useEffect(() => {
+    if (props.videoState.url) {
+      createSubtitles();
+    }
+  }, [props.videoState.url]);
+
+  const createSubtitles = async () => {
+    // setAvailableSubtitles([]);
+
+    if (!props.videoState.subtitles) return;
+
+    const convertedSubtitles = await Promise.all(
+      props.videoState.subtitles.map(async (sub) => {
+        const vttContent = await parseToVTT(sub.file);
+        const blob = new Blob([vttContent], { type: "text/vtt" });
+        const blobUrl = URL.createObjectURL(blob);
+        return { lang: sub.lang, file: blobUrl };
+      })
+    );
+
+    setAvailableSubtitles(convertedSubtitles);
+  };
+
   return (
     <>
       <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
@@ -153,45 +179,51 @@ export default function VideoPlayer(props: VideoPlayerProps) {
             <CircularProgress size={100} />
           </span>
         )}
-
-        <ReactPlayer
-          className="react-player"
-          ref={player}
-          url={props.videoState.url ? props.videoState.url : ""}
-          playing={props.videoState.playing}
-          allow="encrypted-media"
-          onPlay={props.handlePlayVideo}
-          onPause={props.handlePauseVideo}
-          onStart={syncPlayer}
-          onEnded={props.onVideoEnd}
-          onBuffer={handleBuffer}
-          onBufferEnd={handleBufferEnd}
-          onError={handleOpenErrorSnackbar}
-          onProgress={handleProgress}
-          width="100%"
-          height="100%"
-          volume={playerVolume / 100}
-          muted={muted}
-          config={{
-            // @ts-expect-error force use hls.js
-            forceHLS: true,
-            youtube: {
-              playerVars: { showinfo: 0 },
-            },
-            // file: {
-            //   tracks: props.videoState.subtitles?.map((sub) => ({
-            //     kind: "subtitles",
-            //     src: sub.url,
-            //     srcLang: sub.lang,
-            //     language: sub.lang,
-            //     label: sub.lang,
-            //   })),
-            //   attributes: {
-            //     crossOrigin: "anonymous",
-            //   },
-            // },
-          }}
-        />
+        {props.videoState && availableSubtitles && props.videoState.url && (
+          <>
+            <ReactPlayer
+              className="react-player"
+              ref={player}
+              url={props.videoState.url ? props.videoState.url : ""}
+              playing={props.videoState.playing}
+              allow="encrypted-media"
+              onPlay={props.handlePlayVideo}
+              onPause={props.handlePauseVideo}
+              onStart={syncPlayer}
+              onEnded={props.onVideoEnd}
+              onBuffer={handleBuffer}
+              onBufferEnd={handleBufferEnd}
+              onError={handleOpenErrorSnackbar}
+              onProgress={handleProgress}
+              width="100%"
+              height="100%"
+              volume={playerVolume / 100}
+              muted={muted}
+              controls
+              conf
+              config={{
+                // @ts-expect-error force use hls.js
+                forceHLS: true,
+                youtube: {
+                  playerVars: { showinfo: 0 },
+                },
+                file: {
+                  tracks: availableSubtitles.map((sub, index) => ({
+                    kind: "subtitles",
+                    src: sub.file,
+                    srcLang: sub.lang,
+                    language: sub.lang,
+                    label: `${sub.lang} - ${index}`,
+                    default: index === 0,
+                  })),
+                  attributes: {
+                    crossOrigin: "allow",
+                  },
+                },
+              }}
+            />
+          </>
+        )}
 
         {props.videoState.loading ? (
           <div id="loading-circle">
@@ -239,7 +271,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
           </p>
         </div>
         <div id="sync-spacer"></div>
-        {/* {props.videoState.subtitles && props.videoState.subtitles.length > 0 && (
+        {availableSubtitles && availableSubtitles.length > 0 && (
           <Popover
             open={subtitleMenuOpen}
             anchorEl={anchorEl}
@@ -262,7 +294,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
             }}
           >
             <List sx={{ padding: 0 }}>
-              {props.videoState.subtitles.map((sub) => (
+              {availableSubtitles.map((sub) => (
                 <ListItem
                   key={sub.lang}
                   onClick={() => handleChangeSubtitles(sub)}
@@ -296,7 +328,7 @@ export default function VideoPlayer(props: VideoPlayerProps) {
               </ListItem>
             </List>
           </Popover>
-        )} */}
+        )}
         <IconButton disabled={!props.videoState.subtitles || props.videoState.subtitles.length === 0} onClick={handleSubtitlesClick}>
           <ClosedCaption />
         </IconButton>

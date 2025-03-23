@@ -110,6 +110,8 @@ export interface QueueVideoInfo {
   thumbnail?: string;
   id?: string;
   type?: "Movie" | "YouTube";
+  ref?: string;
+  subtitles?: Subtitle[];
 }
 
 export interface MovieInfo {
@@ -156,26 +158,12 @@ export interface MovieSearchResults {
 
 export interface MovieFileResponse {
   videoSource: string;
-  referer?: string;
+  subtitles?: Subtitle[];
 }
 
-type Subtitle = {
+export interface Subtitle {
   lang: string;
   file: string;
-};
-
-type Source = {
-  name: string;
-  data: {
-    stream: string | null;
-    subtitle: Subtitle[];
-  };
-};
-
-export interface BackupMovieFileResponse {
-  status: number;
-  info: string;
-  sources: Source[];
 }
 
 interface SeasonInfo {

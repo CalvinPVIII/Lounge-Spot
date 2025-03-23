@@ -19,7 +19,8 @@
     "react-player": "^2.16.0",
     "react-responsive": "^10.0.0",
     "react-stay-scrolled": "^9.0.0",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "wyzie-lib": "^2.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
