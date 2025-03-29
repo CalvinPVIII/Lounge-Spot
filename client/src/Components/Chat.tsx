@@ -103,7 +103,7 @@ export default function Chat(props: ChatProps) {
         >
           {props.messages.map((message, index) => (
             <React.Fragment key={index}>
-              {message.user.id === "system" ? (
+              {message.user.userId === "system" ? (
                 <p className="system-message">{message.message}</p>
               ) : (
                 <div className={index % 2 === 0 ? "user-message even-message" : "user-message odd-message"}>
