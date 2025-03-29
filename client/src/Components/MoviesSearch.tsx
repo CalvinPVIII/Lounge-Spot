@@ -112,7 +112,6 @@ export default function MoviesSearch(props: MovieSearchProps) {
           engSubtitles.push(stream.subtitles[subtitleFile]);
         }
       }
-      console.log(engSubtitles)
       const queueEntry: QueueVideoInfo = {
         title: episodeTitle,
         thumbnail: seriesDetails?.image,
