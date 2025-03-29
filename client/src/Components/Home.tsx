@@ -12,6 +12,7 @@ export default function Home(props: HomeProps) {
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
   const [joinFromUrl, setJoinFromUrl] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
 
   const handleChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -55,6 +56,10 @@ export default function Home(props: HomeProps) {
       setError("Please enter a room code");
       return;
     }
+    if (name.toLowerCase() === import.meta.env.VITE_SECRET_WORD) {
+      setShowSecret(true);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
     const joinRoomResponse = await FlaskApiHelper.joinRoom(name, code.toUpperCase());
     if (joinRoomResponse.status === "success") {
       props.handleJoinRoom(code, joinRoomResponse.data.userId, name);
@@ -65,6 +70,7 @@ export default function Home(props: HomeProps) {
 
   return (
     <>
+      {showSecret && <span className="heart">♥</span>}
       <h1 id="home-header">Lounge Spot</h1>
       {error ? <p className="error"> {error}</p> : null}
       <div id="home-name-input">

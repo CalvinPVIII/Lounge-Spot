@@ -79,7 +79,6 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   }, [props.videoState.url]);
 
   useEffect(() => {
-    console.log("force sync");
     syncPlayer();
   }, [props.forceSyncPlayer]);
 
@@ -130,7 +129,6 @@ export default function VideoPlayer(props: VideoPlayerProps) {
   const handleFastForward = (forwards: boolean) => {
     if (!player.current) return;
     if (forwards) {
-      console.log(player.current.getCurrentTime() + 10);
       if (player.current.getCurrentTime() + 10 >= player.current.getDuration()) {
         props.handleSeekToVideoTime(player.current.getDuration() - 1);
       } else {

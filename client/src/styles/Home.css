@@ -50,3 +50,26 @@
   text-align: center;
   color: red;
 }
+
+.heart {
+  animation: reveal 0.8s forwards;
+  animation-delay: 0.1s;
+  clip-path: inset(100% 0 100% 0);
+  position: absolute;
+  color: rgb(208, 0, 255);
+  font-size: 72px;
+  position: absolute;
+  top: 35%;
+  left: 49.8%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes reveal {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+  }
+}

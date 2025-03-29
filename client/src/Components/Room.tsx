@@ -114,7 +114,6 @@ export default function Room(props: RoomProps) {
 
     socket.on("forceUpdateVideoInfo", (data: VideoPlayerState) => {
       setVideoState(data);
-      console.log(forceSyncPlayer + 1);
       setForceSyncPlayer((prev) => prev + 1);
     });
 
