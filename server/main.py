@@ -5,7 +5,6 @@ import random
 from string import ascii_uppercase
 import uuid
 import time
-import requests
 from youtubesearchpython import VideosSearch, Video, ResultMode
 
 
