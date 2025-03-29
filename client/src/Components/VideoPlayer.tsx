@@ -151,45 +151,46 @@ export default function VideoPlayer(props: VideoPlayerProps) {
             <CircularProgress size={100} />
           </span>
         )}
-
-        <ReactPlayer
-          className="react-player"
-          ref={player}
-          url={props.videoState.url ? props.videoState.url : ""}
-          playing={props.videoState.playing}
-          allow="encrypted-media"
-          onPlay={props.handlePlayVideo}
-          onPause={props.handlePauseVideo}
-          onStart={syncPlayer}
-          onEnded={props.onVideoEnd}
-          onBuffer={handleBuffer}
-          onBufferEnd={handleBufferEnd}
-          onError={handleOpenErrorSnackbar}
-          onProgress={handleProgress}
-          width="100%"
-          height="100%"
-          volume={playerVolume / 100}
-          muted={muted}
-          config={{
-            // @ts-expect-error force use hls.js
-            forceHLS: true,
-            youtube: {
-              playerVars: { showinfo: 0 },
-            },
-            file: {
-              tracks: props.videoState.subtitles?.map((sub) => ({
-                kind: "subtitles",
-                src: sub.url,
-                srcLang: sub.lang,
-                language: sub.lang,
-                label: sub.lang,
-              })),
-              attributes: {
-                crossOrigin: "anonymous",
+        {props.videoState && (
+          <ReactPlayer
+            className="react-player"
+            ref={player}
+            url={props.videoState.url ? props.videoState.url : ""}
+            playing={props.videoState.playing}
+            allow="encrypted-media"
+            onPlay={props.handlePlayVideo}
+            onPause={props.handlePauseVideo}
+            onStart={syncPlayer}
+            onEnded={props.onVideoEnd}
+            onBuffer={handleBuffer}
+            onBufferEnd={handleBufferEnd}
+            onError={handleOpenErrorSnackbar}
+            onProgress={handleProgress}
+            width="100%"
+            height="100%"
+            volume={playerVolume / 100}
+            muted={muted}
+            config={{
+              // @ts-expect-error force use hls.js
+              forceHLS: true,
+              youtube: {
+                playerVars: { showinfo: 0 },
               },
-            },
-          }}
-        />
+              file: {
+                tracks: props.videoState.subtitles?.map((sub) => ({
+                  kind: "subtitles",
+                  src: sub.url,
+                  srcLang: sub.lang,
+                  language: sub.lang,
+                  label: sub.lang,
+                })),
+                attributes: {
+                  crossOrigin: "anonymous",
+                },
+              },
+            }}
+          />
+        )}
 
         {props.videoState.loading ? (
           <div id="loading-circle">
