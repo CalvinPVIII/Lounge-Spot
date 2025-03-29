@@ -176,18 +176,18 @@ export default function VideoPlayer(props: VideoPlayerProps) {
               youtube: {
                 playerVars: { showinfo: 0 },
               },
-              file: {
-                tracks: props.videoState.subtitles?.map((sub) => ({
-                  kind: "subtitles",
-                  src: sub.url,
-                  srcLang: sub.lang,
-                  language: sub.lang,
-                  label: sub.lang,
-                })),
-                attributes: {
-                  crossOrigin: "anonymous",
-                },
-              },
+              // file: {
+              //   tracks: props.videoState.subtitles?.map((sub) => ({
+              //     kind: "subtitles",
+              //     src: sub.url,
+              //     srcLang: sub.lang,
+              //     language: sub.lang,
+              //     label: sub.lang,
+              //   })),
+              //   attributes: {
+              //     crossOrigin: "anonymous",
+              //   },
+              // },
             }}
           />
         )}
