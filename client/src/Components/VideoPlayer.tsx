@@ -2,6 +2,8 @@ import { Alert, Button, CircularProgress, IconButton, List, ListItem, ListItemTe
 import { QueueVideoInfo, Subtitle, UserInfo, VideoPlayerState } from "../types";
 import ReactPlayer from "react-player";
 import { useRef, useEffect, useState } from "react";
+import { VideoSeekSlider } from "react-video-seek-slider";
+import "react-video-seek-slider/styles.css";
 import "../styles/VideoPlayer.css";
 import {
   VolumeDown,
@@ -143,6 +145,10 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     }
   };
 
+  const handleSeek = (milliseconds: number) => {
+    props.handleSeekToVideoTime(milliseconds / 1000);
+  };
+
   return (
     <>
       <div id={isBigScreen ? "player-wrapper" : "player-wrapper-small"}>
@@ -191,7 +197,15 @@ export default function VideoPlayer(props: VideoPlayerProps) {
             }}
           />
         )}
-
+        {props.videoState.url && player.current && (
+          <div className="slider-wrapper">
+            <VideoSeekSlider
+              max={(player.current.getDuration() * 1000) | 0}
+              currentTime={player.current.getCurrentTime() * 1000}
+              onChange={handleSeek}
+            />
+          </div>
+        )}
         {props.videoState.loading ? (
           <div id="loading-circle">
             <CircularProgress />

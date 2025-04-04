@@ -62,3 +62,7 @@
   align-items: center;
   justify-content: center;
 }
+
+.slider-wrapper {
+  margin-top: -11px;
+}
